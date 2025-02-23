@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 🌙 Dark & Light Mode */
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --primary-color: #6366f1;
+  --secondary-color: #d8b4fe;
+  --accent-color: #f472b6;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+    --primary-color: #a5b4fc;
+    --secondary-color: #6d28d9;
+    --accent-color: #f06292;
+  }
+}
+
+/* 🖥️ Global Styles */
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: 'Roboto', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  line-height: 1.6;
+}
+
+/* Empêcher le scroll horizontal tout en laissant le scroll vertical */
+html, body {
+  overflow-x: hidden;
+  height: 100%;
+  width: 100%;
+}
+
+/* 🔍 Cacher la barre de défilement sans désactiver le scroll */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+
+
+/* 🏗️ Grille des cartes */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Taille min 180px, max flexible */
+  width: 100%;
+  max-width: 1400px; /* Évite une grille trop large sur les grands écrans */
+  gap: 1rem;
+  justify-content: center;
+  align-items: start;
+}
