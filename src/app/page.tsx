@@ -70,33 +70,54 @@ export default function BoostersPage() {
 
   const checkBoosterAvailability = (lastCollected: Date | null) => {
     const now = new Date();
-    const nextTimes = [
+  
+    // Créneaux fixes
+    const boosterTimes = [
       { hour: 4, minute: 0 },
       { hour: 12, minute: 0 },
-      { hour: 18, minute: 47 }
-    ].map(({ hour, minute }) => {
-      const nextTime = new Date();
-      nextTime.setHours(hour, minute, 0, 0);
-      if (nextTime <= now) nextTime.setDate(nextTime.getDate() + 1);
-      return nextTime;
-    });
-
-    const nextBooster = nextTimes.reduce((prev, curr) => (curr < prev ? curr : prev));
-
+      { hour: 19, minute: 46 }
+    ];
+  
+    let nextBooster: Date | null = null;
+    let lastBoosterTime: Date | null = null;
+  
+    for (const { hour, minute } of boosterTimes) {
+      const boosterTime = new Date();
+      boosterTime.setHours(hour, minute, 0, 0);
+  
+      if (boosterTime > now) {
+        if (!nextBooster) nextBooster = boosterTime;
+        break;
+      }
+      lastBoosterTime = boosterTime; // Dernier créneau passé
+    }
+  
+    // Si aucune heure future trouvée, prendre le premier créneau du lendemain
+    if (!nextBooster) {
+      nextBooster = new Date();
+      nextBooster.setDate(nextBooster.getDate() + 1);
+      nextBooster.setHours(boosterTimes[0].hour, boosterTimes[0].minute, 0, 0);
+    }
+  
+    // Mettre à jour l'affichage de l'heure du prochain booster
+    setNextBoosterTime(nextBooster.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+  
     console.log("Last collected:", lastCollected);
     console.log("Actual time:", now);
     console.log("Next booster time:", nextBooster);
-
-    if (!lastCollected || now >= nextBooster) {
+    console.log("Last booster time:", lastBoosterTime);
+  
+    // Correction de la condition de récupération du booster
+    if (!lastCollected || (lastBoosterTime && lastCollected < lastBoosterTime)) {
       setCanCollectBooster(true);
       console.log("Booster can be collected");
     } else {
       setCanCollectBooster(false);
       console.log("Booster cannot be collected yet");
     }
-
-    setNextBoosterTime(nextBooster.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
   };
+  
+  
 
   const openPack = async () => {
     if (!user) return alert("Veuillez vous connecter pour ouvrir un pack.");
@@ -180,6 +201,7 @@ export default function BoostersPage() {
     const userDocRef = doc(db, "collections", user.uid);
     await updateDoc(userDocRef, { LastBoosterCollectedDate: now });
     setLastBoosterCollectedDate(now);
+    setCanCollectBooster(false); // Ajoutez cette ligne pour désactiver le bouton
     checkBoosterAvailability(now);
   };
 
