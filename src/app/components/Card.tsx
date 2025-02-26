@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 
-type CardProps = {
+export type CardProps = {
   id: string;
   name: string;
   rarity: string;

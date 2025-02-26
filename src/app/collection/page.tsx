@@ -18,11 +18,18 @@ export default function CollectionPage() {
   const [viewMode, setViewMode] = useState("owned");
   const [loading, setLoading] = useState(true);
 
+  const playCardDealSound = () => {
+    const audio = new Audio("../ressources/carddeal.mp3");
+    audio.volume = 0.1;
+    audio.play();
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
         await fetchUserCollection(currentUser.uid);
+        playCardDealSound(); // Jouer le son à l'ouverture de la collection
       } else {
         setLoading(false);
       }
@@ -62,6 +69,11 @@ export default function CollectionPage() {
     )
     .slice(page * CARDS_PER_PAGE, (page + 1) * CARDS_PER_PAGE);
 
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    playCardDealSound(); // Jouer le son lors du changement de page
+  };
+
   return (
     <div className="flex flex-col items-center w-full min-h-screen bg-gray-900 pt-24 pb-6 px-4 text-white">
       <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-purple-400 mb-4">
@@ -75,7 +87,7 @@ export default function CollectionPage() {
           <button
             onClick={() => {
               setViewMode(viewMode === "owned" ? "all" : "owned");
-              setPage(0);
+              handlePageChange(0);
             }}
             className="px-4 py-2 bg-purple-600 text-white font-semibold mb-4"
           >
@@ -102,7 +114,7 @@ export default function CollectionPage() {
 
           <div className="flex gap-4 mt-4">
             <button
-              onClick={() => setPage(Math.max(page - 1, 0))}
+              onClick={() => handlePageChange(Math.max(page - 1, 0))}
               disabled={page === 0}
               className="px-4 py-2 bg-blue-500 disabled:bg-gray-600"
             >
@@ -110,10 +122,10 @@ export default function CollectionPage() {
             </button>
             <button
               onClick={() =>
-                setPage((prev) =>
-                  prev + 1 < Math.ceil(cards.length / CARDS_PER_PAGE)
-                    ? prev + 1
-                    : prev
+                handlePageChange(
+                  page + 1 < Math.ceil(cards.length / CARDS_PER_PAGE)
+                    ? page + 1
+                    : page
                 )
               }
               disabled={page + 1 >= Math.ceil(cards.length / CARDS_PER_PAGE)}

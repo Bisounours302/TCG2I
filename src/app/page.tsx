@@ -20,15 +20,40 @@ export default function BoostersPage() {
   const [flash, setFlash] = useState(false);
   const [isFront, setIsFront] = useState(true);
   const [boosters, setBoosters] = useState(0);
+  const [lastBoosterCollectedDate, setLastBoosterCollectedDate] = useState<Date | null>(null);
+  const [canCollectBooster, setCanCollectBooster] = useState(false);
+  const [nextBoosterTime, setNextBoosterTime] = useState("");
 
   const boosterFrontURL = "/ressources/booster_avant.png";
   const boosterBackURL = "/ressources/booster_arriere.png";
+
+  const playFlipSound = () => {
+    const audio = new Audio("../ressources/flipcard.mp3");
+    audio.volume = 0.5;
+    audio.play();
+  };
+
+  const playCardDealSound = () => {
+    const audio = new Audio("../ressources/carddeal.mp3");
+    audio.volume = 0.1;
+    audio.play();
+  };
 
   useEffect(() => {
     if (user) {
       fetchUserBoosters();
     }
   }, [user]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (lastBoosterCollectedDate) {
+        checkBoosterAvailability(lastBoosterCollectedDate);
+      }
+    }, 1000); // Vérifie toutes les 1 secondes
+
+    return () => clearInterval(interval);
+  }, [lastBoosterCollectedDate]);
 
   const fetchUserBoosters = async () => {
     if (!user) return;
@@ -38,7 +63,39 @@ export default function BoostersPage() {
     if (userDoc.exists()) {
       const data = userDoc.data();
       setBoosters(data.nbBooster || 0);
+      setLastBoosterCollectedDate(data.LastBoosterCollectedDate?.toDate() || null);
+      checkBoosterAvailability(data.LastBoosterCollectedDate?.toDate() || null);
     }
+  };
+
+  const checkBoosterAvailability = (lastCollected: Date | null) => {
+    const now = new Date();
+    const nextTimes = [
+      { hour: 4, minute: 0 },
+      { hour: 12, minute: 0 },
+      { hour: 18, minute: 47 }
+    ].map(({ hour, minute }) => {
+      const nextTime = new Date();
+      nextTime.setHours(hour, minute, 0, 0);
+      if (nextTime <= now) nextTime.setDate(nextTime.getDate() + 1);
+      return nextTime;
+    });
+
+    const nextBooster = nextTimes.reduce((prev, curr) => (curr < prev ? curr : prev));
+
+    console.log("Last collected:", lastCollected);
+    console.log("Actual time:", now);
+    console.log("Next booster time:", nextBooster);
+
+    if (!lastCollected || now >= nextBooster) {
+      setCanCollectBooster(true);
+      console.log("Booster can be collected");
+    } else {
+      setCanCollectBooster(false);
+      console.log("Booster cannot be collected yet");
+    }
+
+    setNextBoosterTime(nextBooster.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
   };
 
   const openPack = async () => {
@@ -62,10 +119,11 @@ export default function BoostersPage() {
             setShowBooster(false);
             setFlash(false);
           }, 300);
-        }, 2000);
+        }, 1000);
 
         await saveCardsToCollection(data.pack);
-        await updateUserBoosters();
+        await updateUserBoosters(-1);
+        playFlipSound();
       }
     } catch (error) {
       console.error("Erreur ouverture du pack :", error);
@@ -89,18 +147,20 @@ export default function BoostersPage() {
     }
   };
 
-  const updateUserBoosters = async () => {
+  const updateUserBoosters = async (change: number) => {
     if (!user) return;
     const userDocRef = doc(db, "collections", user.uid);
-    await updateDoc(userDocRef, { nbBooster: boosters - 1 });
-    setBoosters(boosters - 1);
+    await updateDoc(userDocRef, { nbBooster: boosters + change });
+    setBoosters(boosters + change);
   };
 
   const revealNextCard = () => {
     if (currentCardIndex < cards.length - 1) {
       setCurrentCardIndex(currentCardIndex + 1);
+      playFlipSound();
     } else {
       setAllCardsRevealed(true);
+      playCardDealSound();
     }
   };
 
@@ -109,6 +169,18 @@ export default function BoostersPage() {
     setCards([]);
     setCurrentCardIndex(0);
     setAllCardsRevealed(false);
+  };
+
+  const collectBooster = async () => {
+    if (!user) return alert("Veuillez vous connecter pour collecter un booster.");
+    if (!canCollectBooster) return alert("Vous ne pouvez pas encore collecter un booster.");
+
+    await updateUserBoosters(1);
+    const now = new Date();
+    const userDocRef = doc(db, "collections", user.uid);
+    await updateDoc(userDocRef, { LastBoosterCollectedDate: now });
+    setLastBoosterCollectedDate(now);
+    checkBoosterAvailability(now);
   };
 
   return (
@@ -129,7 +201,7 @@ export default function BoostersPage() {
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1.1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
-            className="flex flex-col items-center"
+            className="flex flex-col items-center mt-8 md:mt-16"
           >
             {!isOpening && (
               <h1 className="text-4xl md:text-6xl font-bold text-blue-400 drop-shadow-lg text-center mb-8 md:mb-12">
@@ -147,7 +219,7 @@ export default function BoostersPage() {
                 <motion.div
                   animate={{ rotateY: [0, 180, 360, 540, 720] }}
                   transition={{
-                    duration: 2,
+                    duration: 1.5,
                     ease: "linear",
                     repeat: Infinity,
                     onUpdate: (latest: number) => {
@@ -220,6 +292,19 @@ export default function BoostersPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {canCollectBooster ? (
+        <motion.button
+          onClick={collectBooster}
+          className="fixed bottom-8 right-8 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg shadow-lg transition-all"
+        >
+          Collecter 🎁
+        </motion.button>
+      ) : (
+        <p className="fixed bottom-8 right-8 px-6 py-3 bg-gray-600 text-white font-bold rounded-lg shadow-lg transition-all">
+          Booster gratuit collecté ! Prochain booster à {nextBoosterTime}
+        </p>
+      )}
     </div>
   );
 }
