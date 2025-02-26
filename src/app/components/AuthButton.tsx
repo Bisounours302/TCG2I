@@ -51,7 +51,7 @@ export default function AuthButton() {
     const userSnap = await getDoc(userRef);
 
     if (!userSnap.exists()) {
-      await setDoc(userRef, { nbBooster: 1, tempsRestant: serverTimestamp(), LastCollectedBoosterDate: serverTimestamp(), LastPlayedGameDate: serverTimestamp()});
+      await setDoc(userRef, { nbBooster: 5, tempsRestant: serverTimestamp(), LastCollectedBoosterDate: serverTimestamp(), LastPlayedGameDate: serverTimestamp()});
     }
   };
 
