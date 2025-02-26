@@ -75,7 +75,7 @@ export default function BoostersPage() {
     const boosterTimes = [
       { hour: 4, minute: 0 },
       { hour: 12, minute: 0 },
-      { hour: 19, minute: 46 }
+      { hour: 20, minute: 0 }
     ];
   
     let nextBooster: Date | null = null;
@@ -194,16 +194,36 @@ export default function BoostersPage() {
 
   const collectBooster = async () => {
     if (!user) return alert("Veuillez vous connecter pour collecter un booster.");
-    if (!canCollectBooster) return alert("Vous ne pouvez pas encore collecter un booster.");
-
-    await updateUserBoosters(1);
-    const now = new Date();
-    const userDocRef = doc(db, "collections", user.uid);
-    await updateDoc(userDocRef, { LastBoosterCollectedDate: now });
-    setLastBoosterCollectedDate(now);
-    setCanCollectBooster(false); // Ajoutez cette ligne pour désactiver le bouton
-    checkBoosterAvailability(now);
+    if (!canCollectBooster) return;
+  
+    // Désactiver immédiatement le bouton pour éviter les doubles clics
+    setCanCollectBooster(false);
+  
+    try {
+      const now = new Date();
+      const userDocRef = doc(db, "collections", user.uid);
+      
+      // Mise à jour Firestore
+      await updateDoc(userDocRef, { LastBoosterCollectedDate: now });
+  
+      // Mettre à jour l'état local
+      setLastBoosterCollectedDate(now);
+      await updateUserBoosters(1); // Ajoute +1 booster
+  
+      // Ajout d’un délai pour que l'UI se mette bien à jour avant la prochaine vérification
+      setTimeout(() => {
+        checkBoosterAvailability(now);
+      }, 500);
+      
+      console.log("Booster collecté !");
+    } catch (error) {
+      console.error("Erreur lors de la collecte :", error);
+      
+      // En cas d'erreur, on réactive le bouton pour que l'utilisateur puisse réessayer
+      setCanCollectBooster(true);
+    }
   };
+  
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white p-0 relative overflow-hidden">
