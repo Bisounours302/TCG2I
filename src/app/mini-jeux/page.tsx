@@ -175,7 +175,7 @@ export default function MemoryPage() {
     setMovesMade((prev) => prev + 1);
 
     if (newCards.every((card) => card.isMatched)) {
-      if (dailyGames < 3 && dailyBoosters < 2) {
+      if (dailyGames < 2) {
         updateUserBoosters(1);
         updateDailyStats(1, 1);
       }
@@ -204,19 +204,17 @@ export default function MemoryPage() {
     if (!user) return;
     const userDocRef = doc(db, "collections", user.uid);
     await updateDoc(userDocRef, {
-      dailyBoosters: dailyBoosters + boosters,
       dailyGames: dailyGames + games,
     });
-    setDailyBoosters((prev) => prev + boosters);
     setDailyGames((prev) => prev + games);
   };
 
   const getBoostersRemaining = () => {
-    return Math.max(Math.min(3 - dailyGames, 2 - dailyBoosters), 0);
+    return Math.max(Math.min(2 - dailyGames), 0);
   };
 
   const victoryMessage = () => {
-    if(dailyGames < 3 && dailyBoosters < 2) {
+    if(dailyGames < 2) {
       return `🎉 Félicitations ! Vous avez gagné en ${movesMade} coups et gagné 1 booster !`;
     }
     return `🎉 Félicitations ! Vous avez gagné en ${movesMade} coups !`;
@@ -256,18 +254,20 @@ export default function MemoryPage() {
             <p className="mt-4 text-lg text-gray-300">Coups restants : {movesLeft}</p>
           )}
 
-          {!isLoading && dailyGames < 3 && dailyBoosters != 2 && (
+
+          {!isLoading && dailyGames < 2  && (
             <p className="mt-2 text-lg text-gray-300">
-              Parties éligibles restantes pour gagner des boosters aujourd'hui : {3 - dailyGames}
+              Parties restantes pour gagner des boosters : {2 - dailyGames}
             </p>
           )}
 
-          {!isLoading && dailyBoosters < 2 && (
+          {!isLoading && dailyGames >= 2 && (
             <p className="mt-2 text-lg text-gray-300">
-              Boosters restants à gagner aujourd'hui : {getBoostersRemaining()}
+              Plus de boosters à gagner aujourd'hui
             </p>
           )}
 
+          
           <div className="grid grid-cols-4 gap-4 mt-4">
             {cards.map((card, index) => (
               <motion.div
