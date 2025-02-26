@@ -175,7 +175,9 @@ export default function BoostersPage() {
   
     setIsFront(true);
     setIsOpening(true);
-  
+    (document.getElementsByClassName("MessageBooster")[0] as HTMLElement).style.display = "none";
+
+
     try {
       const booster = await generateBooster();
       if (!booster.length) {
@@ -199,6 +201,7 @@ export default function BoostersPage() {
       alert("Erreur lors de l'ouverture du pack. Veuillez réessayer.");
       setIsOpening(false);
     }
+
   };
 
   const saveCardsToCollection = async (pack: { id: string }[]) => {
@@ -240,6 +243,7 @@ export default function BoostersPage() {
     setCards([]);
     setCurrentCardIndex(0);
     setAllCardsRevealed(false);
+    (document.getElementsByClassName("MessageBooster")[0] as HTMLElement).style.display = "block";
   };
 
   const collectBooster = async () => {
@@ -385,6 +389,7 @@ export default function BoostersPage() {
         )}
       </AnimatePresence>
 
+      <div className="MessageBooster">
       {canCollectBooster ? (
         <motion.button
           onClick={collectBooster}
@@ -397,6 +402,7 @@ export default function BoostersPage() {
           Booster gratuit collecté ! Prochain booster à {nextBoosterTime}
         </p>
       )}
+      </div>
     </div>
   );
 }
