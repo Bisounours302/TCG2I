@@ -26,12 +26,13 @@ export default function MemoryPage() {
   const [isChecking, setIsChecking] = useState(false);
   const [movesLeft, setMovesLeft] = useState(20);
   const [movesMade, setMovesMade] = useState(0);
-  const [boostersWon, setBoostersWon] = useState(0);
-  const [dailyBoosters, setDailyBoosters] = useState(0);
-  const [dailyGames, setDailyGames] = useState(0);
   const [isGameStarted, setIsGameStarted] = useState(false);
   const { user } = useAuth();
   const totalImages = 16; // 16 cartes + 1 image de dos
+
+  // Ajoutez ces états pour stocker les valeurs de la base de données
+  const [dailyBoosters, setDailyBoosters] = useState(0);
+  const [dailyGames, setDailyGames] = useState(0);
 
   // Récupérer 8 cartes aléatoires depuis l'API
   const fetchCards = async () => {
@@ -41,7 +42,6 @@ export default function MemoryPage() {
     setIsGameLost(false);
     setMovesLeft(20);
     setMovesMade(0);
-    setBoostersWon(0);
 
     try {
       const res = await fetch("/api/memory-cards");
@@ -62,8 +62,29 @@ export default function MemoryPage() {
   };
 
   useEffect(() => {
+    const checkLastPlayedGameDate = async () => {
+      if (!user) return;
+      const userDocRef = doc(db, "collections", user.uid);
+      const userDoc = await getDoc(userDocRef);
+  
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        const lastPlayedGameDate = data.LastPlayedGameDate.toDate();
+        const today = new Date();
+  
+        if (lastPlayedGameDate.getDate() !== today.getDate()) {
+          resetDailyStats();
+        } else {
+          // Récupérer les valeurs de la base de données
+          setDailyBoosters(data.dailyBoosters || 0);
+          setDailyGames(data.dailyGames || 0);
+        }
+      }
+    };
+  
+    checkLastPlayedGameDate();
     fetchCards();
-  }, []);
+  }, [user]);
 
   // Précharge toutes les images avant de commencer le jeu
   useEffect(() => {
@@ -101,7 +122,22 @@ export default function MemoryPage() {
     audio.volume = 0.1;
     audio.play();
   };
-  
+
+  const resetDailyStats = async () => {
+    setDailyBoosters(0);
+    setDailyGames(0);
+    if (user) {
+      const userDocRef = doc(db, "collections", user.uid);
+      await updateDoc(userDocRef, { dailyBoosters: 0, dailyGames: 0 });
+    }
+  };
+
+  const updateLastPlayedGameDate = async () => {
+    if (!user) return;
+    const userDocRef = doc(db, "collections", user.uid);
+    await updateDoc(userDocRef, { LastPlayedGameDate: new Date() });
+  };
+
   // Gérer le retournement des cartes
   const handleCardClick = (index: number) => {
     if (isChecking || selectedCards.length === 2 || cards[index].isFlipped || cards[index].isMatched || isLoading || isGameLost)
@@ -140,16 +176,14 @@ export default function MemoryPage() {
 
     if (newCards.every((card) => card.isMatched)) {
       if (dailyGames < 3 && dailyBoosters < 2) {
-        setBoostersWon((prev) => prev + 1);
         updateUserBoosters(1);
-        setDailyBoosters((prev) => prev + 1);
-        setDailyGames((prev) => prev + 1);
+        updateDailyStats(1, 1);
       }
       setIsGameWon(true);
       playWinSound();
     } else if (movesLeft <= 1) {
       setIsGameLost(true);
-      setDailyGames((prev) => prev + 1);
+      updateDailyStats(0, 1);
       playLoseSound();
     }
   };
@@ -166,9 +200,27 @@ export default function MemoryPage() {
     }
   };
 
+  const updateDailyStats = async (boosters: number, games: number) => {
+    if (!user) return;
+    const userDocRef = doc(db, "collections", user.uid);
+    await updateDoc(userDocRef, {
+      dailyBoosters: dailyBoosters + boosters,
+      dailyGames: dailyGames + games,
+    });
+    setDailyBoosters((prev) => prev + boosters);
+    setDailyGames((prev) => prev + games);
+  };
+
   const getBoostersRemaining = () => {
     return Math.max(Math.min(3 - dailyGames, 2 - dailyBoosters), 0);
   };
+
+  const victoryMessage = () => {
+    if(dailyGames < 3 && dailyBoosters < 2) {
+      return `🎉 Félicitations ! Vous avez gagné en ${movesMade} coups et gagné 1 booster !`;
+    }
+    return `🎉 Félicitations ! Vous avez gagné en ${movesMade} coups !`;
+  }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4 pt-24">
@@ -181,7 +233,7 @@ export default function MemoryPage() {
           transition={{ duration: 0.5 }}
           className="mb-4 text-center text-xl font-semibold text-green-400"
         >
-          🎉 Félicitations ! Vous avez gagné en {movesMade} coups et gagné {boostersWon} booster(s) !
+          {victoryMessage()}
         </motion.div>
       )}
 
@@ -237,7 +289,7 @@ export default function MemoryPage() {
 
           {!isLoading && !isGameStarted && (
             <motion.button
-              onClick={() => setIsGameStarted(true)}
+              onClick={() => { setIsGameStarted(true); updateLastPlayedGameDate(); }}
               className="mt-4 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-lg transition-all"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
