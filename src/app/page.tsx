@@ -120,24 +120,27 @@ export default function BoostersPage() {
   const generateBooster = async () => {
     const commonCards = await fetchCardsByRarity("commune");
     const rareCards = await fetchCardsByRarity("brillante");
+    const superRareCards = await fetchCardsByRarity("super-rare");
     const secretCards = await fetchCardsByRarity("secrete");
   
     const random = Math.random();
     let booster = [];
   
-    if (random < 0.7) {
-      // Booster commun
-      booster = getRandomCards(commonCards, 6);
-    } else if (random < 0.9) {
-      // Booster rare
+    if (random < 0.6) {
+      // 60% - 5 communes + 1 brillante
       booster = [...getRandomCards(commonCards, 5), getRandomCard(rareCards)];
+    } else if (random < 0.9) {
+      // 30% - 4 communes + 2 brillantes
+      booster = [...getRandomCards(commonCards, 4), ...getRandomCards(rareCards, 2)];
+    } else if (random < 0.98) {
+      // 8% - 5 communes + 1 super-rare
+      booster = [...getRandomCards(commonCards, 5), getRandomCard(superRareCards)];
+    } else if (random < 0.99) {
+      // 1% - 6 brillantes
+      booster = getRandomCards(rareCards, 6);
     } else {
-      // Booster secret
-      booster = [
-        ...getRandomCards(commonCards, 4),
-        getRandomCard(rareCards),
-        getRandomCard(secretCards),
-      ];
+      // 1% - 5 communes + 1 secrete
+      booster = [...getRandomCards(commonCards, 5), getRandomCard(secretCards)];
     }
   
     return booster;
