@@ -151,6 +151,7 @@ export default function BoostersPage() {
         throw new Error("Erreur chargement cartes");
       }
       const data = await res.json();
+      console.log(`Cartes récupérées pour la rareté ${rarity}:`, data.cards);
       return data.cards;
     } catch (error) {
       console.error("Erreur lors de la récupération des cartes :", error);
@@ -177,6 +178,9 @@ export default function BoostersPage() {
   
     try {
       const booster = await generateBooster();
+      if (!booster.length) {
+        throw new Error("Aucune carte récupérée pour le booster");
+      }
       setTimeout(() => {
         setFlash(true);
         setTimeout(() => {
@@ -192,6 +196,8 @@ export default function BoostersPage() {
       playFlipSound();
     } catch (error) {
       console.error("Erreur ouverture du pack :", error);
+      alert("Erreur lors de l'ouverture du pack. Veuillez réessayer.");
+      setIsOpening(false);
     }
   };
 
