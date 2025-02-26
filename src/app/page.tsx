@@ -116,36 +116,80 @@ export default function BoostersPage() {
       console.log("Booster cannot be collected yet");
     }
   };
+
+  const generateBooster = async () => {
+    const commonCards = await fetchCardsByRarity("commune");
+    const rareCards = await fetchCardsByRarity("brillante");
+    const secretCards = await fetchCardsByRarity("secrete");
   
+    const random = Math.random();
+    let booster = [];
   
+    if (random < 0.7) {
+      // Booster commun
+      booster = getRandomCards(commonCards, 6);
+    } else if (random < 0.9) {
+      // Booster rare
+      booster = [...getRandomCards(commonCards, 5), getRandomCard(rareCards)];
+    } else {
+      // Booster secret
+      booster = [
+        ...getRandomCards(commonCards, 4),
+        getRandomCard(rareCards),
+        getRandomCard(secretCards),
+      ];
+    }
+  
+    return booster;
+  };
+  
+  const fetchCardsByRarity = async (rarity: string) => {
+    try {
+      const res = await fetch(`/api/rarity-booster?rarity=${rarity}`);
+      if (!res.ok) {
+        console.error(`Erreur chargement cartes: ${res.status} ${res.statusText}`);
+        throw new Error("Erreur chargement cartes");
+      }
+      const data = await res.json();
+      return data.cards;
+    } catch (error) {
+      console.error("Erreur lors de la récupération des cartes :", error);
+      throw error;
+    }
+  };
+  
+  const getRandomCards = (cards: any[], count: number) => {
+    const shuffled = cards.sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+  };
+  
+  const getRandomCard = (cards: any[]) => {
+    const index = Math.floor(Math.random() * cards.length);
+    return cards[index];
+  };
 
   const openPack = async () => {
     if (!user) return alert("Veuillez vous connecter pour ouvrir un pack.");
     if (boosters <= 0) return alert("Vous n'avez plus de boosters disponibles.");
-
+  
     setIsFront(true);
     setIsOpening(true);
-
+  
     try {
-      const res = await fetch("/api/open-pack");
-      if (!res.ok) throw new Error("Erreur réseau lors de la récupération du pack");
-
-      const data = await res.json();
-      if (data.pack && Array.isArray(data.pack)) {
+      const booster = await generateBooster();
+      setTimeout(() => {
+        setFlash(true);
         setTimeout(() => {
-          setFlash(true);
-          setTimeout(() => {
-            setCards(data.pack);
-            setIsOpening(false);
-            setShowBooster(false);
-            setFlash(false);
-          }, 300);
-        }, 1000);
-
-        await saveCardsToCollection(data.pack);
-        await updateUserBoosters(-1);
-        playFlipSound();
-      }
+          setCards(booster);
+          setIsOpening(false);
+          setShowBooster(false);
+          setFlash(false);
+        }, 300);
+      }, 1000);
+  
+      await saveCardsToCollection(booster);
+      await updateUserBoosters(-1);
+      playFlipSound();
     } catch (error) {
       console.error("Erreur ouverture du pack :", error);
     }
