@@ -65,7 +65,7 @@ export default function CollectionPage() {
     .filter((card) =>
       viewMode === "owned"
         ? card.quantity > 0
-        : card.rarity !== "secrete" || card.quantity > 0
+        : (card.rarity !== "secrete" && card.rarity !== "super-rare") || card.quantity > 0
     )
     .slice(page * CARDS_PER_PAGE, (page + 1) * CARDS_PER_PAGE);
 
