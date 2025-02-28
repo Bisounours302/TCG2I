@@ -3,14 +3,14 @@
 import { useState, useEffect, useCallback } from "react";
 import { auth, db, provider } from "@/lib/firebaseConfig";
 import { signInWithPopup, signOut, onAuthStateChanged, User } from "firebase/auth";
-import { doc, getDoc, setDoc, updateDoc, onSnapshot, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, setDoc,  onSnapshot, serverTimestamp } from "firebase/firestore";
 import { User as UserIcon, Package } from "lucide-react";
+import Image from "next/image";
 
 export default function AuthButton() {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [boosters, setBoosters] = useState(0);
-  const [nextBoosterTime, setNextBoosterTime] = useState<Date | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [boosters, setBoosters] = useState<number>(0);
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -35,12 +35,13 @@ export default function AuthButton() {
         setBoosters(data.nbBooster || 0);
 
         if (data.tempsRestant) {
-          const lastTimestamp = data.tempsRestant.toDate();
-          const nextTime = new Date(lastTimestamp.getTime() + 8 * 60 * 60 * 1000);
-          setNextBoosterTime(nextTime);
+          // const lastTimestamp = data.tempsRestant.toDate();
+          // const nextTime = new Date(lastTimestamp.getTime() + 8 * 60 * 60 * 1000);
         }
       }
     });
+
+    
 
     return () => unsubscribeSnapshot(); // Se désabonne du listener si l'utilisateur se déconnecte
   }, [user]);
@@ -59,9 +60,9 @@ export default function AuthButton() {
     try {
       setLoading(true);
       await signInWithPopup(auth, provider);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Erreur lors de la connexion :", error);
-      alert(`Erreur : ${error.message}`);
+      alert(`Erreur : ${(error as Error).message}`);
     } finally {
       setLoading(false);
     }
@@ -71,9 +72,9 @@ export default function AuthButton() {
     try {
       setLoading(true);
       await signOut(auth);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Erreur lors de la déconnexion :", error);
-      alert(`Erreur : ${error.message}`);
+      alert(`Erreur : ${(error as Error).message}`);
     } finally {
       setLoading(false);
     }
@@ -89,12 +90,14 @@ export default function AuthButton() {
             <Package className="text-yellow-400 w-6 h-6" />
             <span className="text-white">{boosters}</span>
           </div>
-          <img
+          <Image
             src={user.photoURL || "/default-avatar.png"}
             alt="Photo de profil"
             className="w-10 h-10 rounded-full cursor-pointer border-2 border-white hover:border-red-500 transition-all"
             onClick={handleLogout}
             title="Se déconnecter"
+            width={40}
+            height={40}
           />
         </>
       ) : (

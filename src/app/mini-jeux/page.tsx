@@ -31,7 +31,6 @@ export default function MemoryPage() {
   const totalImages = 16; // 16 cartes + 1 image de dos
 
   // Ajoutez ces états pour stocker les valeurs de la base de données
-  const [dailyBoosters, setDailyBoosters] = useState(0);
   const [dailyGames, setDailyGames] = useState(0);
 
   // Récupérer 8 cartes aléatoires depuis l'API
@@ -76,7 +75,6 @@ export default function MemoryPage() {
           resetDailyStats();
         } else {
           // Récupérer les valeurs de la base de données
-          setDailyBoosters(data.dailyBoosters || 0);
           setDailyGames(data.dailyGames || 0);
         }
       }
@@ -124,7 +122,6 @@ export default function MemoryPage() {
   };
 
   const resetDailyStats = async () => {
-    setDailyBoosters(0);
     setDailyGames(0);
     if (user) {
       const userDocRef = doc(db, "collections", user.uid);
@@ -209,10 +206,6 @@ export default function MemoryPage() {
     setDailyGames((prev) => prev + games);
   };
 
-  const getBoostersRemaining = () => {
-    return Math.max(Math.min(2 - dailyGames), 0);
-  };
-
   const victoryMessage = () => {
     if(dailyGames < 2) {
       return `🎉 Félicitations ! Vous avez gagné en ${movesMade} coups et gagné 1 booster !`;
@@ -263,7 +256,7 @@ export default function MemoryPage() {
 
           {!isLoading && dailyGames >= 2 && (
             <p className="mt-2 text-lg text-gray-300">
-              Plus de boosters à gagner aujourd'hui
+              Plus de boosters à gagner aujourd&apos;hui
             </p>
           )}
 

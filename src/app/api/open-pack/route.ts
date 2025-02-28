@@ -7,7 +7,7 @@ export async function GET() {
     const querySnapshot = await getDocs(collection(db, "cards"));
     const allCards = querySnapshot.docs.map((doc) => {
       const data = doc.data();
-      return { id: doc.id, ...data };  // Ajoute l'ID Firestore
+      return { id: doc.id, name: data.name, rarity: data.rarity, imageURL: data.imageURL };  // Ajoute l'ID Firestore
     });
 
     console.log("📂 Cartes disponibles:", allCards.length);
@@ -17,7 +17,7 @@ export async function GET() {
     }
 
     // Sélection unique de 6 cartes aléatoires
-    const pack: any[] = [];
+    const pack: { id: string; name: string; rarity: string; imageURL: string }[] = [];
     while (pack.length < 6) {
       const randomCard = allCards[Math.floor(Math.random() * allCards.length)];
       if (!pack.some((card) => card.id === randomCard.id)) {

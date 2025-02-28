@@ -162,12 +162,12 @@ export default function BoostersPage() {
     }
   };
   
-  const getRandomCards = (cards: any[], count: number) => {
+  const getRandomCards = (cards: { id: string; name: string; rarity: string; imageURL: string }[], count: number) => {
     const shuffled = cards.sort(() => 0.5 - Math.random());
     return shuffled.slice(0, count);
   };
   
-  const getRandomCard = (cards: any[]) => {
+  const getRandomCard = (cards: { id: string; name: string; rarity: string; imageURL: string }[]) => {
     const index = Math.floor(Math.random() * cards.length);
     return cards[index];
   };

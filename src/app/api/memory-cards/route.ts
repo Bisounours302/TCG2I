@@ -20,7 +20,7 @@ export async function GET() {
     const selectedCards = [...allCards.sort(() => Math.random() - 0.5).slice(0, 8)];
 
     // Créer deux exemplaires de chaque carte avec des IDs uniques
-    const memoryCards = selectedCards.flatMap((card, index) => [
+    const memoryCards = selectedCards.flatMap((card) => [
       { ...card, uniqueId: `${card.id}-1` },
       { ...card, uniqueId: `${card.id}-2` },
     ]);
