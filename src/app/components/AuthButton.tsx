@@ -2,15 +2,14 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { auth, db, provider } from "@/lib/firebaseConfig";
-import { signInWithPopup, signOut, onAuthStateChanged, User } from "firebase/auth";
+import { signInWithPopup, onAuthStateChanged, User, getAuth } from "firebase/auth";
 import { doc, getDoc, setDoc,  onSnapshot, serverTimestamp } from "firebase/firestore";
 import { User as UserIcon, Package } from "lucide-react";
-import Image from "next/image";
 
 export default function AuthButton() {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [boosters, setBoosters] = useState<number>(0);
+  const [loading, setLoading] = useState(true);
+  const [boosters, setBoosters] = useState(0);
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -33,15 +32,8 @@ export default function AuthButton() {
       if (docSnap.exists()) {
         const data = docSnap.data();
         setBoosters(data.nbBooster || 0);
-
-        if (data.tempsRestant) {
-          // const lastTimestamp = data.tempsRestant.toDate();
-          // const nextTime = new Date(lastTimestamp.getTime() + 8 * 60 * 60 * 1000);
-        }
       }
     });
-
-    
 
     return () => unsubscribeSnapshot(); // Se désabonne du listener si l'utilisateur se déconnecte
   }, [user]);
@@ -52,7 +44,10 @@ export default function AuthButton() {
     const userSnap = await getDoc(userRef);
 
     if (!userSnap.exists()) {
-      await setDoc(userRef, { nbBooster: 5, tempsRestant: serverTimestamp(), LastCollectedBoosterDate: serverTimestamp(), LastPlayedGameDate: serverTimestamp()});
+      const auth = getAuth();
+      const user = auth.currentUser;
+      const userName = user?.displayName || "Unknown";
+      await setDoc(userRef, { nomJoueur: userName, nbBooster: 5, tempsRestant: serverTimestamp(), LastCollectedBoosterDate: serverTimestamp(), LastPlayedGameDate: serverTimestamp() });
     }
   };
 
@@ -61,8 +56,10 @@ export default function AuthButton() {
       setLoading(true);
       await signInWithPopup(auth, provider);
     } catch (error: unknown) {
-      console.error("Erreur lors de la connexion :", error);
-      alert(`Erreur : ${(error as Error).message}`);
+      if (error instanceof Error) {
+        console.error("Erreur lors de la connexion :", error);
+        alert(`Erreur : ${error.message}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -70,11 +67,11 @@ export default function AuthButton() {
 
   const handleLogout = useCallback(async () => {
     try {
-      setLoading(true);
-      await signOut(auth);
     } catch (error: unknown) {
-      console.error("Erreur lors de la déconnexion :", error);
-      alert(`Erreur : ${(error as Error).message}`);
+      if (error instanceof Error) {
+        console.error("Erreur lors de la déconnexion :", error);
+        alert(`Erreur : ${error.message}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -90,14 +87,12 @@ export default function AuthButton() {
             <Package className="text-yellow-400 w-6 h-6" />
             <span className="text-white">{boosters}</span>
           </div>
-          <Image
+          <img
             src={user.photoURL || "/default-avatar.png"}
             alt="Photo de profil"
             className="w-10 h-10 rounded-full cursor-pointer border-2 border-white hover:border-red-500 transition-all"
             onClick={handleLogout}
             title="Se déconnecter"
-            width={40}
-            height={40}
           />
         </>
       ) : (

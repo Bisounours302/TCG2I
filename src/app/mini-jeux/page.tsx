@@ -39,7 +39,7 @@ export default function MemoryPage() {
     setImagesLoaded(0);
     setIsGameWon(false);
     setIsGameLost(false);
-    setMovesLeft(20);
+    setMovesLeft(15);
     setMovesMade(0);
 
     try {
@@ -206,6 +206,7 @@ export default function MemoryPage() {
     setDailyGames((prev) => prev + games);
   };
 
+
   const victoryMessage = () => {
     if(dailyGames < 2) {
       return `🎉 Félicitations ! Vous avez gagné en ${movesMade} coups et gagné 1 booster !`;
@@ -256,7 +257,7 @@ export default function MemoryPage() {
 
           {!isLoading && dailyGames >= 2 && (
             <p className="mt-2 text-lg text-gray-300">
-              Plus de boosters à gagner aujourd&apos;hui
+              Plus de boosters à gagner aujour&apos;hui
             </p>
           )}
 

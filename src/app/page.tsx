@@ -10,7 +10,7 @@ import Card from "@/src/app/components/Card";
 
 export default function BoostersPage() {
   const [cards, setCards] = useState<
-    { id: string; name: string; rarity: string; imageURL: string }[]
+    { id: string; name: string; rarity: string; imageURL: string; isNew?: boolean }[]
   >([]);
   const [showBooster, setShowBooster] = useState(true);
   const [isOpening, setIsOpening] = useState(false);
@@ -162,12 +162,19 @@ export default function BoostersPage() {
     }
   };
   
-  const getRandomCards = (cards: { id: string; name: string; rarity: string; imageURL: string }[], count: number) => {
+  interface Card {
+    id: string;
+    name: string;
+    rarity: string;
+    imageURL: string;
+  }
+
+  const getRandomCards = (cards: Card[], count: number) => {
     const shuffled = cards.sort(() => 0.5 - Math.random());
     return shuffled.slice(0, count);
   };
   
-  const getRandomCard = (cards: { id: string; name: string; rarity: string; imageURL: string }[]) => {
+  const getRandomCard = (cards: Card[]) => {
     const index = Math.floor(Math.random() * cards.length);
     return cards[index];
   };
@@ -207,18 +214,28 @@ export default function BoostersPage() {
 
   };
 
-  const saveCardsToCollection = async (pack: { id: string }[]) => {
+  const saveCardsToCollection = async (pack: { id: string; name: string; rarity: string; imageURL: string }[]) => {
     if (!user) return;
     try {
       const userDocRef = doc(db, "collections", user.uid);
       const userDoc = await getDoc(userDocRef);
       const userCards = userDoc.exists() ? userDoc.data().cards || {} : {};
 
-      pack.forEach((card) => {
+      const newCards = pack.map((card) => {
+        let isNew = false;
+        console.log("Card ID:", card.id);
+        console.log("Nombre d'exemplaires:", userCards[card.id]);
+        if (userCards[card.id] == undefined) {
+          isNew = true;
+          console.log("Carte nouvelle !");
+        }
         if (card.id) userCards[card.id] = (userCards[card.id] || 0) + 1;
+        console.log("Etat isNew:", isNew);
+        return { ...card, isNew };
       });
 
       await updateDoc(userDocRef, { cards: userCards });
+      setCards(newCards);
     } catch (error) {
       console.error("Erreur ajout collection :", error);
     }
@@ -378,7 +395,7 @@ export default function BoostersPage() {
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: index * 0.1, type: "spring", stiffness: 100 }}
                 >
-                  <Card {...card} isRevealed={true} />
+                  <Card {...card} isRevealed={true} isNew={card.isNew} />
                 </motion.div>
               ))}
             </div>
