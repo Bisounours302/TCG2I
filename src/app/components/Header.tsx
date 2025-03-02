@@ -46,7 +46,7 @@ export default function Header() {
       {/* 🖥️ Desktop Navigation (centré en permanence) */}
       {showDesktopMenu && (
         <nav className="absolute left-1/2 -translate-x-1/2 flex items-center gap-6">
-          {["Boosters", "Collection", "Mini-jeux"].map((item, index) => (
+          {["Boosters", "Collection", "Memory"].map((item, index) => (
             <Link
               key={index}
               href={item === "Boosters" ? "/" : `/${item.toLowerCase()}`}

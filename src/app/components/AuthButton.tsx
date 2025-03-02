@@ -50,7 +50,7 @@ export default function AuthButton() {
       await setDoc(userRef, { nomJoueur: userName, nbBooster: 10, tempsRestant: serverTimestamp(), LastCollectedBoosterDate: serverTimestamp(), LastPlayedGameDate: serverTimestamp() });
     }
   };
-
+  
   const handleLogin = useCallback(async () => {
     try {
       setLoading(true);

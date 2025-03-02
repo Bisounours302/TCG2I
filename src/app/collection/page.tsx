@@ -61,13 +61,15 @@ export default function CollectionPage() {
     }
   };
 
-  const displayedCards = cards
-    .filter((card) =>
-      viewMode === "owned"
-        ? card.quantity > 0
-        : (card.rarity !== "secrete" && card.rarity !== "super-rare") || card.quantity > 0
-    )
-    .slice(page * CARDS_PER_PAGE, (page + 1) * CARDS_PER_PAGE);
+  const filteredCards = cards.filter((card) =>
+    viewMode === "owned"
+      ? card.quantity > 0
+      : (card.rarity !== "secrete" && card.rarity !== "super-rare") || card.quantity > 0
+  );
+
+  const displayedCards = filteredCards.slice(page * CARDS_PER_PAGE, (page + 1) * CARDS_PER_PAGE);
+
+  const totalPages = Math.ceil(filteredCards.length / CARDS_PER_PAGE);
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
@@ -76,10 +78,6 @@ export default function CollectionPage() {
 
   return (
     <div className="flex flex-col items-center w-full min-h-screen bg-gray-900 pt-24 pb-6 px-4 text-white">
-      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-purple-400 mb-4">
-        🎴 My Card Collection 🎴
-      </h1>
-
       {loading ? (
         <div className="flex items-center justify-center text-lg">Loading...</div>
       ) : user ? (
@@ -100,10 +98,10 @@ export default function CollectionPage() {
               {displayedCards.length > 0 ? (
                 displayedCards.map((card) => (
                   <div key={card.id}>
-                  <Card key={card.id} {...card} isRevealed={card.quantity > 0} isOwned={card.quantity > 0} />
-                  <div className="flex items-center justify-center">
-                    <p className="text-white text-lg">Exemplaires : {card.quantity}</p>
-                  </div>
+                    <Card key={card.id} {...card} isRevealed={card.quantity > 0} isOwned={card.quantity > 0} />
+                    <div className="flex items-center justify-center">
+                      <p className="text-white text-lg">Exemplaires : {card.quantity}</p>
+                    </div>
                   </div>
                 ))
               ) : (
@@ -112,26 +110,37 @@ export default function CollectionPage() {
             </div>
           </div>
 
-          <div className="flex gap-4 mt-4">
+          <div className="flex items-center gap-4 mt-4">
+            <button
+              onClick={() => handlePageChange(0)}
+              disabled={page === 0}
+              className="px-2 py-1 bg-blue-500 disabled:bg-gray-600"
+            >
+              {"<<"}
+            </button>
             <button
               onClick={() => handlePageChange(Math.max(page - 1, 0))}
               disabled={page === 0}
-              className="px-4 py-2 bg-blue-500 disabled:bg-gray-600"
+              className="px-2 py-1 bg-blue-500 disabled:bg-gray-600"
             >
-              Previous
+              {"<"}
+            </button>
+            <p className="text-gray-400">
+              Page {page + 1} sur {totalPages}
+            </p>
+            <button
+              onClick={() => handlePageChange(Math.min(page + 1, totalPages - 1))}
+              disabled={page + 1 >= totalPages}
+              className="px-2 py-1 bg-blue-500 disabled:bg-gray-600"
+            >
+              {">"}
             </button>
             <button
-              onClick={() =>
-                handlePageChange(
-                  page + 1 < Math.ceil(cards.length / CARDS_PER_PAGE)
-                    ? page + 1
-                    : page
-                )
-              }
-              disabled={page + 1 >= Math.ceil(cards.length / CARDS_PER_PAGE)}
-              className="px-4 py-2 bg-blue-500 disabled:bg-gray-600"
+              onClick={() => handlePageChange(totalPages - 1)}
+              disabled={page + 1 >= totalPages}
+              className="px-2 py-1 bg-blue-500 disabled:bg-gray-600"
             >
-              Next
+              {">>"}
             </button>
           </div>
         </>

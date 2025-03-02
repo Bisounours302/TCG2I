@@ -32,7 +32,7 @@ export default function Card({ id, name, rarity, imageURL, isRevealed = true, is
         unoptimized={true} 
       />
       {isNew && (
-        <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+        <div className="absolute top-2 right-2 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg animate-pulse">
           NEW
         </div>
       )}

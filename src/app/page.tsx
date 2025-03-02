@@ -10,7 +10,7 @@ import Card from "@/src/app/components/Card";
 
 export default function BoostersPage() {
   const [cards, setCards] = useState<
-    { id: string; name: string; rarity: string; imageURL: string; isNew?: boolean }[]
+    { id: string; name: string; rarity: string; imageURL: string }[]
   >([]);
   const [showBooster, setShowBooster] = useState(true);
   const [isOpening, setIsOpening] = useState(false);
@@ -162,19 +162,12 @@ export default function BoostersPage() {
     }
   };
   
-  interface Card {
-    id: string;
-    name: string;
-    rarity: string;
-    imageURL: string;
-  }
-
-  const getRandomCards = (cards: Card[], count: number) => {
+  const getRandomCards = (cards: any[], count: number) => {
     const shuffled = cards.sort(() => 0.5 - Math.random());
     return shuffled.slice(0, count);
   };
   
-  const getRandomCard = (cards: Card[]) => {
+  const getRandomCard = (cards: any[]) => {
     const index = Math.floor(Math.random() * cards.length);
     return cards[index];
   };
@@ -214,28 +207,18 @@ export default function BoostersPage() {
 
   };
 
-  const saveCardsToCollection = async (pack: { id: string; name: string; rarity: string; imageURL: string }[]) => {
+  const saveCardsToCollection = async (pack: { id: string }[]) => {
     if (!user) return;
     try {
       const userDocRef = doc(db, "collections", user.uid);
       const userDoc = await getDoc(userDocRef);
       const userCards = userDoc.exists() ? userDoc.data().cards || {} : {};
 
-      const newCards = pack.map((card) => {
-        let isNew = false;
-        console.log("Card ID:", card.id);
-        console.log("Nombre d'exemplaires:", userCards[card.id]);
-        if (userCards[card.id] == undefined) {
-          isNew = true;
-          console.log("Carte nouvelle !");
-        }
+      pack.forEach((card) => {
         if (card.id) userCards[card.id] = (userCards[card.id] || 0) + 1;
-        console.log("Etat isNew:", isNew);
-        return { ...card, isNew };
       });
 
       await updateDoc(userDocRef, { cards: userCards });
-      setCards(newCards);
     } catch (error) {
       console.error("Erreur ajout collection :", error);
     }
@@ -321,7 +304,7 @@ export default function BoostersPage() {
           >
             {!isOpening && (
               <h1 className="text-4xl md:text-6xl font-bold text-blue-400 drop-shadow-lg text-center mb-8 md:mb-12">
-                🎁 Ouverture de Booster ({boosters} restants)
+                Ouverture de Booster
               </h1>
             )}
 
@@ -395,7 +378,7 @@ export default function BoostersPage() {
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: index * 0.1, type: "spring", stiffness: 100 }}
                 >
-                  <Card {...card} isRevealed={true} isNew={card.isNew} />
+                  <Card {...card} isRevealed={true} />
                 </motion.div>
               ))}
             </div>
@@ -419,7 +402,7 @@ export default function BoostersPage() {
         </motion.button>
       ) : (
         <p className="fixed bottom-8 right-8 px-6 py-3 bg-gray-600 text-white font-bold rounded-lg shadow-lg transition-all">
-          Booster gratuit collecté ! Prochain booster à {nextBoosterTime}
+          Prochain booster à {nextBoosterTime}
         </p>
       )}
       </div>
