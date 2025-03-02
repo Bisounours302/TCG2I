@@ -8,10 +8,15 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { motion, AnimatePresence } from "framer-motion";
 import Card from "@/src/app/components/Card";
 
+interface CardData {
+  id: string;
+  name: string;
+  rarity: string;
+  imageURL: string;
+}
+
 export default function BoostersPage() {
-  const [cards, setCards] = useState<
-    { id: string; name: string; rarity: string; imageURL: string }[]
-  >([]);
+  const [cards, setCards] = useState<CardData[]>([]);
   const [showBooster, setShowBooster] = useState(true);
   const [isOpening, setIsOpening] = useState(false);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
@@ -124,7 +129,7 @@ export default function BoostersPage() {
     const secretCards = await fetchCardsByRarity("secrete");
   
     const random = Math.random();
-    let booster = [];
+    let booster: CardData[] = [];
   
     if (random < 0.6) {
       // 60% - 5 communes + 1 brillante
@@ -146,7 +151,7 @@ export default function BoostersPage() {
     return booster;
   };
   
-  const fetchCardsByRarity = async (rarity: string) => {
+  const fetchCardsByRarity = async (rarity: string): Promise<CardData[]> => {
     try {
       const res = await fetch(`/api/rarity-booster?rarity=${rarity}`);
       if (!res.ok) {
@@ -162,12 +167,12 @@ export default function BoostersPage() {
     }
   };
   
-  const getRandomCards = (cards: any[], count: number) => {
+  const getRandomCards = (cards: CardData[], count: number): CardData[] => {
     const shuffled = cards.sort(() => 0.5 - Math.random());
     return shuffled.slice(0, count);
   };
   
-  const getRandomCard = (cards: any[]) => {
+  const getRandomCard = (cards: CardData[]): CardData => {
     const index = Math.floor(Math.random() * cards.length);
     return cards[index];
   };
@@ -207,7 +212,7 @@ export default function BoostersPage() {
 
   };
 
-  const saveCardsToCollection = async (pack: { id: string }[]) => {
+  const saveCardsToCollection = async (pack: CardData[]) => {
     if (!user) return;
     try {
       const userDocRef = doc(db, "collections", user.uid);
