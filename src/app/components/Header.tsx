@@ -3,8 +3,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { getStorage, ref, getDownloadURL } from "firebase/storage";
-import { app } from "@/lib/firebaseConfig";
 import AuthButton from "./AuthButton";
 import MobileMenu from "./MobileMenu";
 
