@@ -47,7 +47,7 @@ export default function AuthButton() {
       const auth = getAuth();
       const user = auth.currentUser;
       const userName = user?.displayName || "Unknown";
-      await setDoc(userRef, { nomJoueur: userName, nbBooster: 5, tempsRestant: serverTimestamp(), LastCollectedBoosterDate: serverTimestamp(), LastPlayedGameDate: serverTimestamp() });
+      await setDoc(userRef, { nomJoueur: userName, nbBooster: 10, tempsRestant: serverTimestamp(), LastCollectedBoosterDate: serverTimestamp(), LastPlayedGameDate: serverTimestamp() });
     }
   };
 
