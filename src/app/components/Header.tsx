@@ -9,31 +9,15 @@ import AuthButton from "./AuthButton";
 import MobileMenu from "./MobileMenu";
 
 export default function Header() {
-  const [logoURL, setLogoURL] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false);
   const [showDesktopMenu, setShowDesktopMenu] = useState(true);
+
+
+  const logoURL = "/ressources/LOGO.png";
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
-
-  useEffect(() => {
-    if (!isMounted) return;
-
-    const fetchLogo = async () => {
-      const storage = getStorage(app);
-      const logoRef = ref(storage, "ressources/LOGO.png");
-
-      try {
-        const url = await getDownloadURL(logoRef);
-        setLogoURL(url);
-      } catch (error) {
-        console.error("Erreur chargement du logo :", error);
-      }
-    };
-
-    fetchLogo();
-  }, [isMounted]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -51,7 +35,7 @@ export default function Header() {
       <Link href="/" className="flex-shrink-0 w-40">
         {isMounted && (
           <Image
-            src={logoURL || "/placeholder-logo.png"}
+            src={logoURL}
             alt="Logo"
             width={120}
             height={48}
