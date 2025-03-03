@@ -41,7 +41,7 @@ export default function Header() {
 
       {showDesktopMenu && (
         <nav className="absolute left-1/2 -translate-x-1/2 hidden lg:flex items-center gap-4 xl:gap-6">
-          {["Boosters", "Collection", "Memory"].map((item, index) => (
+          {["Boosters", "Collection", "Memory", "Classement"].map((item, index) => (
             <Link
               key={index}
               href={item === "Boosters" ? "/" : `/${item.toLowerCase()}`}

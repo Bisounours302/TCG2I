@@ -45,7 +45,7 @@ export default function MobileMenu() {
               transition={{ duration: 0.3 }}
             >
               <div className="flex flex-col p-4 gap-3">
-                {["Boosters", "Collection", "Memory"].map((item, index) => (
+                {["Boosters", "Collection", "Memory", "Classement"].map((item, index) => (
                   <Link
                     key={index}
                     href={item === "Boosters" ? "/" : `/${item.toLowerCase()}`}

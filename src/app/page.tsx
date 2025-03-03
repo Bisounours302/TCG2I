@@ -179,12 +179,12 @@ export default function BoostersPage() {
   const openPack = async () => {
     if (!user) return alert("Veuillez vous connecter pour ouvrir un pack.");
     if (boosters <= 0) return alert("Vous n'avez plus de boosters disponibles.");
+    if (isOpening) return; // Prevent opening multiple boosters at the same time
   
     setIsFront(true);
     setIsOpening(true);
     (document.getElementsByClassName("MessageBooster")[0] as HTMLElement).style.display = "none";
-
-
+  
     try {
       const booster = await generateBooster();
       if (!booster.length) {
@@ -208,7 +208,6 @@ export default function BoostersPage() {
       alert("Erreur lors de l'ouverture du pack. Veuillez réessayer.");
       setIsOpening(false);
     }
-
   };
 
   const saveCardsToCollection = async (pack: CardData[]) => {
