@@ -104,16 +104,16 @@ html, body {
 }
 
 .responsive-grid {
-  @apply grid gap-4 sm:gap-6 lg:gap-8
-    grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6;
+  @apply grid gap-3 sm:gap-4 md:gap-6
+    grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6
+    w-full max-w-[1800px] mx-auto;
 }
 
 /* Enhanced Card Styles */
 .card-container {
   @apply relative w-full aspect-[2/3] 
-    transform transition-transform duration-300 ease-out
-    hover:shadow-2xl 
-    dark:shadow-blue-500/20;
+    transform transition-all duration-300 ease-out
+    hover:shadow-xl hover:shadow-blue-500/20;
 }
 
 /* Enhanced Button Styles */
@@ -174,9 +174,9 @@ html, body {
 /* Responsive grid for memory game */
 .memory-grid {
   @apply grid gap-2 sm:gap-3 md:gap-4
-    grid-cols-4
-    w-full max-w-xs sm:max-w-md md:max-w-lg lg:max-w-xl
-    mx-auto;
+  grid-cols-4
+  w-full max-w-xs sm:max-w-md md:max-w-lg lg:max-w-xl
+  mx-auto;
 }
 
 /* Responsive buttons */

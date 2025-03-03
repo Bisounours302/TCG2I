@@ -62,29 +62,30 @@ export default function CollectionCard({ id, name, imageURL, quantity, isOwned =
 
   return (
     <motion.div
-      className="card-container group"
+      className="group relative w-full aspect-[2/3] transition-all duration-300"
       whileHover={{ scale: isOwned ? 1.02 : 1 }}
       transition={{ type: "spring", stiffness: 400, damping: 30 }}
     >
       <div
         ref={cardRef}
-        className={`relative w-full h-full will-change-transform
+        className={`relative w-full h-full will-change-transform rounded-lg
           ${!isOwned ? 'grayscale' : ''}`}
         style={{ perspective: "1000px" }}
       >
         <img
           src={imageURL}
           alt={name}
-          className="rounded-xl w-full h-full object-cover"
+          className="w-full h-full  rounded-lg"
+          loading="lazy"
         />
 
         {quantity > 0 && (
           <div className="absolute bottom-2 right-2 
-        bg-gradient-to-r from-blue-500 to-purple-500
-        text-white text-sm font-bold px-3 py-1 
-        rounded-full z-10
-        transform transition-transform duration-200
-        group-hover:scale-110">
+            bg-gradient-to-r from-blue-500 to-purple-500
+            text-white text-xs sm:text-sm font-bold px-2 sm:px-3 py-1 
+            rounded-full z-10 shadow-lg
+            transform transition-all duration-200
+            group-hover:scale-110 group-hover:shadow-xl">
             {quantity}
           </div>
         )}

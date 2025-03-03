@@ -214,7 +214,7 @@ export default function MemoryPage() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white section-padding pt-20 sm:pt-24">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white section-padding pt-20 sm:pt-24 overflow-hidden">
       <title>TCG2i - Memory</title>
       <h1 className="heading-responsive text-blue-400 mb-4 sm:mb-6 text-center">🃏 Jeu de Memory</h1>
 
@@ -251,7 +251,7 @@ export default function MemoryPage() {
 
           {!isLoading && dailyGames < 2  && (
             <p className="mt-2 text-lg text-gray-300">
-              Parties restantes pour gagner des boosters : {2 - dailyGames}
+              Parties à boosters restantes : {2 - dailyGames}
             </p>
           )}
 
@@ -274,7 +274,8 @@ export default function MemoryPage() {
                 <img
                   src={card.isFlipped || card.isMatched ? card.imageURL : "/ressources/card-back.png"}
                   alt="Card"
-                  className="object-cover rounded-lg border border-gray-500 w-full h-full"
+                  className="w-full h-full object-cover rounded-lg border border-gray-500"
+                  loading="lazy"
                 />
                 </motion.div>
             ))}

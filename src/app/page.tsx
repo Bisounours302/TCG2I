@@ -308,7 +308,7 @@ export default function BoostersPage() {
             className="flex flex-col items-center mt-8 md:mt-16"
           >
             {!isOpening && (
-              <h1 className="text-4xl md:text-6xl font-bold text-blue-400 drop-shadow-lg text-center mb-8 md:mb-12">
+              <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-blue-400 drop-shadow-lg text-center mb-6 md:mb-12 px-4">
                 Ouverture de Booster
               </h1>
             )}
@@ -354,14 +354,18 @@ export default function BoostersPage() {
         ) : !allCardsRevealed ? (
           <motion.div
             key="single-card"
-            className="flex flex-col items-center justify-center h-screen relative"
+            className="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] px-4 w-full"
             initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1.2 }}
+            animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
             onClick={revealNextCard}
           >
-            <Card {...cards[currentCardIndex]} isRevealed={true} />
-            <p className="mt-4 text-lg text-gray-300">Cliquez pour voir la carte suivante</p>
+            <div className="w-full max-w-[300px] sm:max-w-[400px] md:max-w-[500px] mx-auto">
+              <Card {...cards[currentCardIndex]} isRevealed={true} />
+            </div>
+            <p className="mt-4 text-base sm:text-lg text-gray-300 text-center px-4">
+              Cliquez pour voir la carte suivante
+            </p>
           </motion.div>
         ) : (
           <motion.div
@@ -369,9 +373,9 @@ export default function BoostersPage() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            className="w-full max-w-5xl px-4"
+            className="w-full max-w-5xl px-4 pt-20"
           >
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-20">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
               {cards.map((card, index) => (
                 <motion.div
                   key={card.id}
@@ -386,7 +390,9 @@ export default function BoostersPage() {
             </div>
             <motion.button
               onClick={resetBooster}
-              className="mt-8 mx-auto flex justify-center px-8 py-3 bg-blue-500 text-white rounded-xl shadow-lg transition-all"
+              className="mt-6 sm:mt-8 mx-auto flex justify-center px-6 sm:px-8 py-2 sm:py-3 
+                bg-blue-500 hover:bg-blue-600 text-white rounded-xl shadow-lg 
+                transition-all text-sm sm:text-base font-semibold"
             >
               Continuer
             </motion.button>
@@ -398,12 +404,19 @@ export default function BoostersPage() {
       {canCollectBooster ? (
         <motion.button
           onClick={collectBooster}
-          className="fixed bottom-8 right-8 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg shadow-lg transition-all"
+          className="fixed bottom-4 sm:bottom-8 right-4 sm:right-8 
+            px-4 sm:px-6 py-2 sm:py-3 
+            bg-green-600 hover:bg-green-700 
+            text-white text-sm sm:text-base font-bold 
+            rounded-lg shadow-lg transition-all"
         >
           Collecter 🎁
         </motion.button>
       ) : (
-        <p className="fixed bottom-8 right-8 px-6 py-3 bg-gray-600 text-white font-bold rounded-lg shadow-lg transition-all">
+        <p className="fixed bottom-4 sm:bottom-8 right-4 sm:right-8 
+          px-4 sm:px-6 py-2 sm:py-3 
+          bg-gray-600 text-white text-sm sm:text-base font-bold 
+          rounded-lg shadow-lg">
           Prochain booster à {nextBoosterTime}
         </p>
       )}
