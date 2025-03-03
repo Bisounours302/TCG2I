@@ -5,7 +5,6 @@ import Link from "next/link";
 import { auth, db } from "@/lib/firebaseConfig";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { doc, getDoc, collection, getDocs } from "firebase/firestore";
-import Card from "@/src/app/components/Card";
 import CollectionCard from "@/src/app/components/CollectionCard";
 
 const CARDS_PER_PAGE = 12;

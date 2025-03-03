@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 
 export default function CollectionCard({ id, name, imageURL, quantity, isOwned = true }: CardProps & { quantity: number }) {
   const cardRef = useRef<HTMLDivElement>(null);
+  console.log(id);
 
   useEffect(() => {
     if (!cardRef.current || !isOwned) return;
