@@ -13,6 +13,8 @@ export type CardProps = {
 };
 
 export default function Card({ id, name, rarity, imageURL, isRevealed = true, isOwned = true, isNew }: CardProps) {
+  console.log(id);
+  console.log(rarity);
   return (
     <motion.div
       className={`relative w-full h-auto aspect-[2/3] rounded-lg 

@@ -1,7 +1,6 @@
 "use client";
 
 import { useAuth } from "@/src/providers/AuthProvider";
-import Image from "next/image";
 
 export default function MaintenancePage() {
   const { user, isWhitelisted } = useAuth();
