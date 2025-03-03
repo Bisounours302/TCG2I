@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import { motion } from "framer-motion";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebaseConfig";
@@ -265,20 +264,19 @@ export default function MemoryPage() {
           
           <div className="memory-grid">
             {cards.map((card, index) => (
-              <motion.div
+                <motion.div
                 key={card.uniqueId}
                 className="relative aspect-[3/4] w-full cursor-pointer"
                 onClick={() => isGameStarted && handleCardClick(index)}
                 initial={{ scale: 1 }}
                 whileTap={{ scale: 0.95 }}
-              >
-                <Image
+                >
+                <img
                   src={card.isFlipped || card.isMatched ? card.imageURL : "/ressources/card-back.png"}
                   alt="Card"
-                  fill
-                  className="object-cover rounded-lg border border-gray-500"
+                  className="object-cover rounded-lg border border-gray-500 w-full h-full"
                 />
-              </motion.div>
+                </motion.div>
             ))}
           </div>
 

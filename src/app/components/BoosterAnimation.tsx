@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { motion } from "framer-motion";
 
 export default function BoosterAnimation({ onClick }: { onClick: () => void }) {
@@ -33,7 +32,7 @@ export default function BoosterAnimation({ onClick }: { onClick: () => void }) {
       transition={{ duration: 0.5, ease: "easeInOut" }}
       onClick={handleClick}
     >
-      <Image
+      <img
         src={isFront ? boosterFrontURL : boosterBackURL}
         alt="Booster"
         width={350}

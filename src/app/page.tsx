@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import { useAuth } from "@/src/hooks/useAuth";
 import { db } from "@/lib/firebaseConfig";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
@@ -320,39 +319,36 @@ export default function BoostersPage() {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
             >
-              {isOpening ? (
+                {isOpening ? (
                 <motion.div
                   animate={{ rotateY: [0, 180, 360, 540, 720] }}
                   transition={{
-                    duration: 1.5,
-                    ease: "linear",
-                    repeat: Infinity,
-                    onUpdate: (latest: number) => {
-                      if (latest % 360 >= 90 && latest % 360 < 270) {
-                        setIsFront(false);
-                      } else {
-                        setIsFront(true);
-                      }
-                    },
+                  duration: 1.5,
+                  ease: "linear",
+                  repeat: Infinity,
+                  onUpdate: (latest: number) => {
+                    if (latest % 360 >= 90 && latest % 360 < 270) {
+                    setIsFront(false);
+                    } else {
+                    setIsFront(true);
+                    }
+                  },
                   }}
                   className="w-[250px] md:w-[350px] aspect-[7/10] relative"
                 >
-                  <Image
-                    src={isFront ? boosterFrontURL : boosterBackURL}
-                    alt="Booster"
-                    fill
-                    className="object-contain"
+                  <img
+                  src={isFront ? boosterFrontURL : boosterBackURL}
+                  alt="Booster"
+                  className="object-contain w-full h-full"
                   />
                 </motion.div>
-              ) : (
-                <Image
+                ) : (
+                <img
                   src={boosterFrontURL}
                   alt="Booster face"
-                  width={350}
-                  height={500}
                   className="w-[250px] md:w-[350px] h-auto"
                 />
-              )}
+                )}
             </motion.div>
           </motion.div>
         ) : !allCardsRevealed ? (

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import AuthButton from "./AuthButton";
 import MobileMenu from "./MobileMenu";
 
@@ -32,13 +31,12 @@ export default function Header() {
       {/* 🏆 Logo */}
       <Link href="/" className="flex-shrink-0 w-40">
         {isMounted && (
-          <Image
+          <img
             src={logoURL}
             alt="Logo"
             width={120}
             height={48}
             className="h-10 xs:h-12 w-auto drop-shadow-lg transition-transform duration-200 hover:scale-105"
-            priority
           />
         )}
       </Link>

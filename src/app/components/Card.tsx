@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { motion } from "framer-motion";
 
 export type CardProps = {
@@ -23,13 +22,10 @@ export default function Card({ id, name, rarity, imageURL, isRevealed = true, is
       whileHover={{ scale: isRevealed ? 1.05 : 1 }}
       whileTap={{ scale: isRevealed ? 0.95 : 1 }}
     >
-      <Image 
+      <img 
         src={imageURL} 
         alt={name}
-        layout="fill" 
-        objectFit="contain"
-        className='rounded-xl'
-        unoptimized={true} 
+        className='rounded-xl w-full h-full object-contain'
       />
       {isNew && (
         <div className="absolute top-2 right-2 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg animate-pulse">

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import Image from "next/image";
 import { CardProps } from "./Card";
 import { motion } from "framer-motion";
 
@@ -46,7 +45,7 @@ export default function CollectionCard({ id, name, imageURL, quantity, isOwned =
 
     const resetRotation = () => {
       if (rafId) cancelAnimationFrame(rafId);
-      
+
       card.style.transition = 'transform 0.2s ease-out';
       card.style.transform = 'perspective(1000px) rotate3d(0, 0, 0, 0deg)';
     };
@@ -67,27 +66,25 @@ export default function CollectionCard({ id, name, imageURL, quantity, isOwned =
       whileHover={{ scale: isOwned ? 1.02 : 1 }}
       transition={{ type: "spring", stiffness: 400, damping: 30 }}
     >
-      <div 
+      <div
         ref={cardRef}
         className={`relative w-full h-full will-change-transform
           ${!isOwned ? 'grayscale' : ''}`}
         style={{ perspective: "1000px" }}
       >
-        <Image
+        <img
           src={imageURL}
           alt={name}
-          fill
-          className="rounded-xl"
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          className="rounded-xl w-full h-full object-cover"
         />
-        
+
         {quantity > 0 && (
           <div className="absolute bottom-2 right-2 
-            bg-gradient-to-r from-blue-500 to-purple-500
-            text-white text-sm font-bold px-3 py-1 
-            rounded-full z-10
-            transform transition-transform duration-200
-            group-hover:scale-110">
+        bg-gradient-to-r from-blue-500 to-purple-500
+        text-white text-sm font-bold px-3 py-1 
+        rounded-full z-10
+        transform transition-transform duration-200
+        group-hover:scale-110">
             {quantity}
           </div>
         )}
