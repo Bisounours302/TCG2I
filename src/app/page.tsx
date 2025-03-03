@@ -289,6 +289,7 @@ export default function BoostersPage() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white p-0 relative overflow-hidden">
+      <title>TCG2i - Boosters</title>
       {flash && (
         <motion.div
           className="absolute inset-0 bg-white/70 backdrop-blur-md"

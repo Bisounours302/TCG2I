@@ -6,6 +6,7 @@ import { auth, db } from "@/lib/firebaseConfig";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 import Card from "@/src/app/components/Card";
+import CollectionCard from "@/src/app/components/CollectionCard";
 
 const CARDS_PER_PAGE = 12;
 
@@ -17,11 +18,20 @@ export default function CollectionPage() {
   const [page, setPage] = useState(0);
   const [viewMode, setViewMode] = useState("owned");
   const [loading, setLoading] = useState(true);
+  const [audio] = useState(new Audio("../ressources/carddeal.mp3"));
+
+  useEffect(() => {
+    audio.volume = 0.1;
+  }, [audio]);
 
   const playCardDealSound = () => {
-    const audio = new Audio("../ressources/carddeal.mp3");
-    audio.volume = 0.1;
-    audio.play();
+    if (audio.paused) {  // Only play if not already playing
+      audio.currentTime = 0;  // Reset to start
+      audio.play().catch(() => {
+        // Handle any play() failures silently
+        console.log("Audio play failed - user hasn't interacted yet");
+      });
+    }
   };
 
   useEffect(() => {
@@ -29,7 +39,6 @@ export default function CollectionPage() {
       setUser(currentUser);
       if (currentUser) {
         await fetchUserCollection(currentUser.uid);
-        playCardDealSound(); // Jouer le son à l'ouverture de la collection
       } else {
         setLoading(false);
       }
@@ -73,55 +82,58 @@ export default function CollectionPage() {
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
-    playCardDealSound(); // Jouer le son lors du changement de page
+    playCardDealSound(); // This will only play after user interaction
   };
 
   return (
-    <div className="flex flex-col items-center w-full min-h-screen bg-gray-900 pt-24 pb-6 px-4 text-white">
+    <div className="flex flex-col items-center w-full min-h-screen bg-gray-900 pt-20 sm:pt-24 pb-6 px-4 text-white">
+      <title>TCG2i - Collection</title>
       {loading ? (
-        <div className="flex items-center justify-center text-lg">Loading...</div>
+        <div className="flex items-center justify-center text-responsive">Loading...</div>
       ) : user ? (
-        <>
-          <button
-            onClick={() => {
-              setViewMode(viewMode === "owned" ? "all" : "owned");
-              handlePageChange(0);
-            }}
-            className="px-4 py-2 bg-purple-600 text-white font-semibold mb-4"
-          >
-            {viewMode === "owned" ? "VOIR TOUTES LES CARTES" : "VOIR MES CARTES"}
-          </button>
-
-          {/* Grid des cartes optimisée */}
-          <div className="w-full max-w-7xl px-4 flex justify-center">
-            <div className="card-grid w-full h-full">
-              {displayedCards.length > 0 ? (
-                displayedCards.map((card) => (
-                  <div key={card.id}>
-                    <Card key={card.id} {...card} isRevealed={card.quantity > 0} isOwned={card.quantity > 0} />
-                    <div className="flex items-center justify-center">
-                      <p className="text-white text-lg">Exemplaires : {card.quantity}</p>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <p className="text-gray-400 text-center">Aucune carte.</p>
-              )}
-            </div>
+        <div className="responsive-container">
+          <div className="w-full flex justify-center mb-4">
+            <button
+              onClick={() => {
+                setViewMode(viewMode === "owned" ? "all" : "owned");
+                handlePageChange(0);
+              }}
+              className="responsive-button bg-purple-600 hover:bg-purple-700 text-white 
+                w-full sm:w-auto mx-auto"
+            >
+              {viewMode === "owned" ? "VOIR TOUTES LES CARTES" : "VOIR MES CARTES"}
+            </button>
           </div>
 
-          <div className="flex items-center gap-4 mt-4">
+          <div className="responsive-grid">
+            {displayedCards.length > 0 ? (
+              displayedCards.map((card) => (
+                <CollectionCard 
+                  key={card.id}
+                  {...card}
+                  isOwned={card.quantity > 0}
+                />
+              ))
+            ) : (
+              <p className="text-gray-400 text-center col-span-full text-responsive">
+                Aucune carte.
+              </p>
+            )}
+          </div>
+
+          {/* Pagination */}
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 mt-6">
             <button
               onClick={() => handlePageChange(0)}
               disabled={page === 0}
-              className="px-2 py-1 bg-blue-500 disabled:bg-gray-600"
+              className="responsive-button bg-blue-500 disabled:bg-gray-600"
             >
               {"<<"}
             </button>
             <button
               onClick={() => handlePageChange(Math.max(page - 1, 0))}
               disabled={page === 0}
-              className="px-2 py-1 bg-blue-500 disabled:bg-gray-600"
+              className="responsive-button bg-blue-500 disabled:bg-gray-600"
             >
               {"<"}
             </button>
@@ -131,19 +143,19 @@ export default function CollectionPage() {
             <button
               onClick={() => handlePageChange(Math.min(page + 1, totalPages - 1))}
               disabled={page + 1 >= totalPages}
-              className="px-2 py-1 bg-blue-500 disabled:bg-gray-600"
+              className="responsive-button bg-blue-500 disabled:bg-gray-600"
             >
               {">"}
             </button>
             <button
               onClick={() => handlePageChange(totalPages - 1)}
               disabled={page + 1 >= totalPages}
-              className="px-2 py-1 bg-blue-500 disabled:bg-gray-600"
+              className="responsive-button bg-blue-500 disabled:bg-gray-600"
             >
               {">>"}
             </button>
           </div>
-        </>
+        </div>
       ) : (
         <div className="flex flex-col justify-center text-center">
           <p className="text-gray-300 text-lg sm:text-xl mb-4">

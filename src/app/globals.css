@@ -49,7 +49,43 @@ html, body {
   display: none;
 }
 
+/* Card Parallax Effects */
+.card-parallax {
+  --card-width: 200px;
+  --card-height: 280px;
+  --transition-duration: 0.6s;
+}
 
+.card-container {
+  position: relative;
+  width: var(--card-width);
+  height: var(--card-height);
+  perspective: 1000px;
+  cursor: pointer;
+  margin: 0 auto;
+}
+
+.card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform var(--transition-duration) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-inner.zoomed {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1.5);
+  z-index: 50;
+}
+
+.card-inactive {
+  pointer-events: none;
+  opacity: 0.6;
+  filter: blur(2px);
+}
 
 /* 🏗️ Grille des cartes */
 .card-grid {
@@ -60,4 +96,124 @@ html, body {
   gap: 1rem;
   justify-content: center;
   align-items: start;
+}
+
+/* Enhanced Responsive Design */
+.responsive-container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.responsive-grid {
+  @apply grid gap-4 sm:gap-6 lg:gap-8
+    grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6;
+}
+
+/* Enhanced Card Styles */
+.card-container {
+  @apply relative w-full aspect-[2/3] 
+    transform transition-transform duration-300 ease-out
+    hover:shadow-2xl 
+    dark:shadow-blue-500/20;
+}
+
+/* Enhanced Button Styles */
+.btn-primary {
+  @apply px-4 py-2 rounded-lg font-semibold text-white
+    bg-gradient-to-r from-blue-600 to-purple-600
+    hover:from-blue-700 hover:to-purple-700
+    transform transition-all duration-200
+    hover:scale-105 hover:shadow-lg
+    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50;
+}
+
+.btn-secondary {
+  @apply px-4 py-2 rounded-lg font-semibold
+    bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-white
+    hover:bg-gray-300 dark:hover:bg-gray-600
+    transform transition-all duration-200
+    hover:shadow-md;
+}
+
+
+@keyframes gradient-slow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Responsive utilities */
+.responsive-container {
+  @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.responsive-grid {
+  @apply grid gap-4 sm:gap-6 lg:gap-8
+    grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6;
+}
+
+
+
+/* Make text responsive */
+.text-responsive {
+  @apply text-base sm:text-lg md:text-xl lg:text-2xl;
+}
+
+.heading-responsive {
+  @apply text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold;
+}
+
+/* Responsive padding and margins */
+.section-padding {
+  @apply p-4 sm:p-6 md:p-8 lg:p-10;
+}
+
+.section-margin {
+  @apply m-4 sm:m-6 md:m-8 lg:m-10;
+}
+
+/* Responsive grid for memory game */
+.memory-grid {
+  @apply grid gap-2 sm:gap-3 md:gap-4
+    grid-cols-4
+    w-full max-w-xs sm:max-w-md md:max-w-lg lg:max-w-xl
+    mx-auto;
+}
+
+/* Responsive buttons */
+.responsive-button {
+  @apply px-4 py-2 sm:px-6 sm:py-3 
+    text-sm sm:text-base md:text-lg
+    rounded-lg font-semibold
+    transition-all duration-300;
+}
+
+/* Enhanced Typography */
+.heading-1 {
+  @apply text-2xl sm:text-3xl md:text-4xl font-bold
+    bg-clip-text text-transparent bg-gradient-to-r
+    from-blue-400 to-purple-500;
+}
+
+.heading-2 {
+  @apply text-xl sm:text-2xl md:text-3xl font-semibold
+    text-gray-800 dark:text-white;
+}
+
+/* Card Grid Layout */
+.card-grid {
+  @apply grid auto-rows-fr gap-4 sm:gap-6
+    grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6
+    p-4 sm:p-6;
+}
+
+/* Mobile Navigation Menu */
+.mobile-menu {
+  @apply fixed inset-0 z-50 bg-black bg-opacity-50 backdrop-blur-sm
+    transform transition-transform duration-300 ease-in-out;
+}
+
+.mobile-menu-content {
+  @apply fixed right-0 top-0 h-full w-64 bg-white dark:bg-gray-900
+    transform transition-transform duration-300 ease-in-out
+    shadow-2xl;
 }

@@ -215,15 +215,16 @@ export default function MemoryPage() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4 pt-24">
-      <h1 className="text-4xl font-bold text-blue-400 mb-6">🃏 Jeu de Memory</h1>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white section-padding pt-20 sm:pt-24">
+      <title>TCG2i - Memory</title>
+      <h1 className="heading-responsive text-blue-400 mb-4 sm:mb-6 text-center">🃏 Jeu de Memory</h1>
 
       {isGameWon && (
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          className="mb-4 text-center text-xl font-semibold text-green-400"
+          className="mb-4 text-center text-responsive font-semibold text-green-400 px-4"
         >
           {victoryMessage()}
         </motion.div>
@@ -262,14 +263,14 @@ export default function MemoryPage() {
           )}
 
           
-          <div className="grid grid-cols-4 gap-4 mt-4">
+          <div className="memory-grid">
             {cards.map((card, index) => (
               <motion.div
                 key={card.uniqueId}
-                className="relative w-24 h-32 md:w-32 md:h-44 cursor-pointer"
+                className="relative aspect-[3/4] w-full cursor-pointer"
                 onClick={() => isGameStarted && handleCardClick(index)}
                 initial={{ scale: 1 }}
-                whileTap={{ scale: 0.9 }}
+                whileTap={{ scale: 0.95 }}
               >
                 <Image
                   src={card.isFlipped || card.isMatched ? card.imageURL : "/ressources/card-back.png"}
@@ -284,7 +285,7 @@ export default function MemoryPage() {
           {!isLoading && !isGameStarted && (
             <motion.button
               onClick={() => { setIsGameStarted(true); updateLastPlayedGameDate(); }}
-              className="mt-4 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-lg transition-all"
+              className="responsive-button bg-blue-600 hover:bg-blue-700 text-white mt-6"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >

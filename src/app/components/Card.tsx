@@ -28,7 +28,7 @@ export default function Card({ id, name, rarity, imageURL, isRevealed = true, is
         alt={name}
         layout="fill" 
         objectFit="contain"
-        className='rounded-lg'
+        className='rounded-xl'
         unoptimized={true} 
       />
       {isNew && (

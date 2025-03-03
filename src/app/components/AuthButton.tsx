@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { auth, db, provider } from "@/lib/firebaseConfig";
-import { signInWithPopup, onAuthStateChanged, User, getAuth } from "firebase/auth";
-import { doc, getDoc, setDoc,  onSnapshot, serverTimestamp } from "firebase/firestore";
+import { signInWithPopup, onAuthStateChanged, User, getAuth, signOut } from "firebase/auth";
+import { doc, getDoc, setDoc, onSnapshot, serverTimestamp } from "firebase/firestore";
 import { User as UserIcon, Package } from "lucide-react";
 
 export default function AuthButton() {
@@ -55,6 +55,7 @@ export default function AuthButton() {
     try {
       setLoading(true);
       await signInWithPopup(auth, provider);
+      window.location.reload(); // Rafraîchit la page après la connexion
     } catch (error: unknown) {
       if (error instanceof Error) {
         console.error("Erreur lors de la connexion :", error);
@@ -67,6 +68,8 @@ export default function AuthButton() {
 
   const handleLogout = useCallback(async () => {
     try {
+      await signOut(auth); // Déconnecte l'utilisateur
+      window.location.reload(); // Rafraîchit la page après la déconnexion
     } catch (error: unknown) {
       if (error instanceof Error) {
         console.error("Erreur lors de la déconnexion :", error);
