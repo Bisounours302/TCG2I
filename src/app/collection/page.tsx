@@ -17,14 +17,18 @@ export default function CollectionPage() {
   const [page, setPage] = useState(0);
   const [viewMode, setViewMode] = useState("owned");
   const [loading, setLoading] = useState(true);
-  const [audio] = useState(new Audio("../ressources/carddeal.mp3"));
+  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    audio.volume = 0.1;
-  }, [audio]);
+    if (typeof window !== "undefined") {
+      const newAudio = new Audio("../ressources/carddeal.mp3");
+      newAudio.volume = 0.1;
+      setAudio(newAudio);
+    }
+  }, []);
 
   const playCardDealSound = () => {
-    if (audio.paused) {  // Only play if not already playing
+    if (audio && audio.paused) {  // Only play if not already playing
       audio.currentTime = 0;  // Reset to start
       audio.play().catch(() => {
         // Handle any play() failures silently
