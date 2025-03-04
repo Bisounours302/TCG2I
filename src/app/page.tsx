@@ -133,18 +133,33 @@ export default function BoostersPage() {
     if (random < 0.6) {
       // 60% - 5 communes + 1 brillante
       booster = [...getRandomCards(commonCards, 5), getRandomCard(rareCards)];
-    } else if (random < 0.9) {
+    } else if (random < 0.85) {
       // 30% - 4 communes + 2 brillantes
       booster = [...getRandomCards(commonCards, 4), ...getRandomCards(rareCards, 2)];
-    } else if (random < 0.98) {
-      // 8% - 5 communes + 1 super-rare
-      booster = [...getRandomCards(commonCards, 5), getRandomCard(superRareCards)];
-    } else if (random < 0.99) {
-      // 1% - 6 brillantes
+    } else if (random < 0.9) {
+      // 5% - 6 brillantes
       booster = getRandomCards(rareCards, 6);
-    } else {
-      // 1% - 5 communes + 1 secrete
+    } else if (random < 0.94) {
+      // 4% - 5 communes + 1 super-rares
+      booster = [...getRandomCards(commonCards, 5), getRandomCard(superRareCards)];
+    } else if (random < 0.965) {
+      // 2.5% - 4 communes + 1 brillante + 1 super-rares
+      booster = [...getRandomCards(commonCards, 4), getRandomCard(rareCards), getRandomCard(superRareCards)];
+    } else if (random < 0.98) {
+      // 1.5% - 5 brillante + 1 super-rares
+      booster = [...getRandomCards(rareCards, 5), getRandomCard(superRareCards)];
+    } else if (random < 0.99) {
+      // 1% - 4 brillante + 2 super-rares
+      booster = [...getRandomCards(rareCards, 4), ...getRandomCards(superRareCards, 2)];
+    } else if (random < 0.995) {
+      // 0.5% - 5 communes + 1 secrete
       booster = [...getRandomCards(commonCards, 5), getRandomCard(secretCards)];
+    } else if (random < 0.998) {
+      // 0.3% - 5 brillante + 1 secrete
+      booster = [...getRandomCards(rareCards, 5), getRandomCard(secretCards)];
+    } else {
+      // 0.2% - 4 brillante + 1 super-rares + 1 secrete
+      booster = [...getRandomCards(rareCards, 4), getRandomCard(superRareCards), getRandomCard(secretCards)];
     }
   
     return booster;
