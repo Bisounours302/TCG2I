@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebaseConfig";
 import { useAuth } from "@/src/hooks/useAuth";
+import RestrictedAccess from "@/src/components/RestrictedAccess";
 
 interface Card {
   id: string;
@@ -16,6 +17,14 @@ interface Card {
 }
 
 export default function MemoryPage() {
+  return (
+    <RestrictedAccess>
+      <MemoryGame />
+    </RestrictedAccess>
+  );
+}
+
+function MemoryGame() {
   const [cards, setCards] = useState<Card[]>([]);
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
   const [isGameWon, setIsGameWon] = useState(false);
@@ -168,7 +177,7 @@ export default function MemoryPage() {
     setSelectedCards([]);
     setIsChecking(false);
     setMovesLeft((prev) => prev - 1);
-    setMovesMade((prev) => prev + 1);
+    setMovesMade(movesMade + 1);
 
     if (newCards.every((card) => card.isMatched)) {
       if (dailyGames < 2) {
@@ -205,104 +214,94 @@ export default function MemoryPage() {
     setDailyGames((prev) => prev + games);
   };
 
-
-  const victoryMessage = () => {
-    if(dailyGames < 2) {
-      return `🎉 Félicitations ! Vous avez gagné en ${movesMade} coups et gagné 1 booster !`;
-    }
-    return `🎉 Félicitations ! Vous avez gagné en ${movesMade} coups !`;
-  }
-
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white section-padding pt-20 sm:pt-24 overflow-hidden">
+    <div className="flex flex-col items-center justify-start min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white pt-16 sm:pt-24 px-2 sm:px-4">
       <title>TCG2i - Memory</title>
-      <h1 className="heading-responsive text-blue-400 mb-4 sm:mb-6 text-center">🃏 Jeu de Memory</h1>
+      
+      <h1 className="text-xl sm:text-3xl md:text-4xl font-bold text-blue-400 text-center">
+        🃏 Jeu de Memory
+      </h1>
 
-      {isGameWon && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="mb-4 text-center text-responsive font-semibold text-green-400 px-4"
-        >
-          {victoryMessage()}
-        </motion.div>
-      )}
+      <div className="w-full max-w-lg">
+        <div className="flex flex-wrap justify-center items-center gap-1 text-xs sm:text-sm text-gray-300">
+          {!isLoading && isGameStarted && !isGameWon && !isGameLost && (
+            <div className="rounded-lg bg-gray-800/50 px-2 backdrop-blur-sm">
+              Coups : {movesLeft}
+            </div>
+          )}
 
-      {isGameLost && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="mb-4 text-center text-xl font-semibold text-red-400"
-        >
-          😢 Vous avez perdu. Vous avez fait {movesMade} coups.
-        </motion.div>
-      )}
+          {!isLoading && dailyGames < 2 && (
+            <div className="rounded-lg bg-gray-800/50 px-2 backdrop-blur-sm">
+              Boosters : {2 - dailyGames}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Message Modal */}
+      <AnimatePresence>
+        {(isGameWon || isGameLost) && (
+          <motion.div 
+            className="fixed inset-0 flex items-center justify-center z-50 bg-black/50 backdrop-blur-sm px-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div 
+              className="bg-gray-800 border border-blue-500 rounded-xl p-4 sm:p-6 w-full max-w-[300px] sm:max-w-md mx-auto"
+              initial={{ scale: 0.7, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.7, opacity: 0 }}
+            >
+              {/* ...existing modal content... */}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {isLoading ? (
-        <p className="text-gray-300">Chargement des cartes... ({imagesLoaded}/{totalImages})</p>
+        <div className="flex flex-col items-center justify-center h-48 sm:h-64">
+          <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-t-2 border-b-2 border-blue-500"></div>
+          <p className="text-gray-300 text-xs sm:text-sm mt-4">
+            Chargement... ({imagesLoaded}/{totalImages})
+          </p>
+        </div>
       ) : (
         <>
-          {!isLoading && isGameStarted && !isGameWon && !isGameLost && (
-            <p className="mt-4 text-lg text-gray-300">Coups restants : {movesLeft}</p>
-          )}
-
-
-          {!isLoading && dailyGames < 2  && (
-            <p className="mt-2 text-lg text-gray-300">
-              Parties à boosters restantes : {2 - dailyGames}
-            </p>
-          )}
-
-          {!isLoading && dailyGames >= 2 && (
-            <p className="mt-2 text-lg text-gray-300">
-              Plus de boosters à gagner aujour&apos;hui
-            </p>
-          )}
-
-          
-          <div className="memory-grid">
+            <div className="memory-grid">
             {cards.map((card, index) => (
-                <motion.div
-                key={card.uniqueId}
-                className="relative aspect-[3/4] w-full cursor-pointer"
-                onClick={() => isGameStarted && handleCardClick(index)}
-                initial={{ scale: 1 }}
-                whileTap={{ scale: 0.95 }}
-                >
-                <img
-                  src={card.isFlipped || card.isMatched ? card.imageURL : "/ressources/card-back.png"}
-                  alt="Card"
-                  className="w-full h-full object-cover rounded-lg border border-gray-500"
-                  loading="lazy"
-                />
-                </motion.div>
+              <motion.div
+              key={card.uniqueId}
+              className="relative w-auto sm:h-40 cursor-pointer rounded-lg "
+              onClick={() => isGameStarted && handleCardClick(index)}
+              initial={{ scale: 1 }}
+              whileTap={{ scale: 0.95 }}
+              >
+              <img
+                src={card.isFlipped || card.isMatched ? card.imageURL : "/ressources/card-back.png"}
+                alt="Card"
+                className="w-full h-full rounded-lg border border-gray-700"
+                loading="lazy"
+              />
+              </motion.div>
             ))}
-          </div>
+            </div>
 
-          {!isLoading && !isGameStarted && (
-            <motion.button
-              onClick={() => { setIsGameStarted(true); updateLastPlayedGameDate(); }}
-              className="responsive-button bg-blue-600 hover:bg-blue-700 text-white mt-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              Jouer
-            </motion.button>
-          )}
+          <div className=""></div>
+            {!isGameStarted && !isGameWon && !isGameLost && (
+              <motion.button
+                onClick={() => { setIsGameStarted(true); updateLastPlayedGameDate(); }}
+                className="px-4 sm:px-6 py-1 text-sm sm:text-base bg-blue-600 hover:bg-blue-700 
+                  text-white font-semibold rounded-lg transition-colors"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Jouer
+              </motion.button>
+            )}
         </>
-      )}
-
-      {(isGameWon || isGameLost) && (
-        <motion.button
-          onClick={fetchCards}
-          className="mt-6 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-lg transition-all"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          Rejouer
-        </motion.button>
       )}
     </div>
   );

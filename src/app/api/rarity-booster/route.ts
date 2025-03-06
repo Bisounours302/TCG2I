@@ -1,30 +1,29 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/firebaseConfig";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { adminDb } from "@/lib/firebaseAdmin";
 
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const rarity = searchParams.get("rarity");
-
-  if (!rarity) {
-    return NextResponse.json({ error: "Rarity is required" }, { status: 400 });
-  }
-
+export async function GET(request: Request) {
   try {
-    const cardsRef = collection(db, "cards");
-    const q = query(cardsRef, where("rarity", "==", rarity));
-    const querySnapshot = await getDocs(q);
+    const { searchParams } = new URL(request.url);
+    const rarity = searchParams.get('rarity');
 
-    const cards = querySnapshot.docs.map((doc) => ({
+    if (!rarity) {
+      return NextResponse.json({ error: "Rarity parameter is required" }, { status: 400 });
+    }
+
+    const cardsRef = adminDb.collection('cards');
+    const cardsSnapshot = await cardsRef.where('rarity', '==', rarity).get();
+
+    const cards = cardsSnapshot.docs.map(doc => ({
       id: doc.id,
-      ...doc.data(),
+      name: doc.data().name,
+      imageURL: doc.data().imageURL,
+      rarity: doc.data().rarity,
     }));
 
-    console.log(`Cartes récupérées pour la rareté ${rarity}:`, cards);
-
     return NextResponse.json({ cards });
+
   } catch (error) {
-    console.error("Erreur lors de la récupération des cartes :", error);
-    return NextResponse.json({ error: "Erreur lors de la récupération des cartes" }, { status: 500 });
+    console.error("Erreur:", error);
+    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

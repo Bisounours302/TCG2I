@@ -10,7 +10,6 @@ export async function GET() {
       return { id: doc.id, name: data.name, rarity: data.rarity, type: data.type };  // Ajoute l'ID Firestore et les autres propriétés
     });
 
-    console.log("📂 Cartes disponibles:", allCards.length);
 
     if (allCards.length === 0) {
       return NextResponse.json({ error: "Aucune carte disponible." }, { status: 400 });
@@ -25,7 +24,6 @@ export async function GET() {
       }
     }
 
-    console.log("🎁 Pack généré:", pack);
     return NextResponse.json({ pack });
   } catch (error) {
     console.error("❌ Erreur lors de l'ouverture du pack:", error);

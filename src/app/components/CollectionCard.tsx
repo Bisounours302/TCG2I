@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 
 export default function CollectionCard({ id, name, imageURL, quantity, isOwned = true }: CardProps & { quantity: number }) {
   const cardRef = useRef<HTMLDivElement>(null);
-  console.log(id);
 
   useEffect(() => {
     if (!cardRef.current || !isOwned) return;
@@ -32,6 +31,7 @@ export default function CollectionCard({ id, name, imageURL, quantity, isOwned =
 
         card.style.transition = 'none';
         card.style.transform = `
+          ${id}zzz
           perspective(1000px)
           rotate3d(
             ${center.y / 150},
@@ -58,7 +58,7 @@ export default function CollectionCard({ id, name, imageURL, quantity, isOwned =
       card.removeEventListener('mousemove', rotateToMouse);
       card.removeEventListener('mouseleave', resetRotation);
     };
-  }, [isOwned]);
+  }, [isOwned, id]);
 
   return (
     <motion.div

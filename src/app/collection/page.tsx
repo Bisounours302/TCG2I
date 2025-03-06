@@ -6,6 +6,7 @@ import { auth, db } from "@/lib/firebaseConfig";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 import CollectionCard from "@/src/app/components/CollectionCard";
+import RestrictedAccess from "@/src/components/RestrictedAccess";
 
 const CARDS_PER_PAGE = 12;
 
@@ -32,7 +33,6 @@ export default function CollectionPage() {
       audio.currentTime = 0;  // Reset to start
       audio.play().catch(() => {
         // Handle any play() failures silently
-        console.log("Audio play failed - user hasn't interacted yet");
       });
     }
   };
@@ -89,88 +89,90 @@ export default function CollectionPage() {
   };
 
   return (
-    <div className="flex flex-col items-center w-full min-h-screen bg-gray-900 pt-20 sm:pt-24 pb-6 px-4 text-white">
-      <title>TCG2i - Collection</title>
-      {loading ? (
-        <div className="flex items-center justify-center text-responsive">Loading...</div>
-      ) : user ? (
-        <div className="responsive-container">
-          <div className="w-full flex justify-center mb-4">
-            <button
-              onClick={() => {
-                setViewMode(viewMode === "owned" ? "all" : "owned");
-                handlePageChange(0);
-              }}
-              className="responsive-button bg-purple-600 hover:bg-purple-700 text-white 
-                w-full sm:w-auto mx-auto"
-            >
-              {viewMode === "owned" ? "VOIR TOUTES LES CARTES" : "VOIR MES CARTES"}
-            </button>
-          </div>
+    <RestrictedAccess>
+      <div className="flex flex-col items-center w-full min-h-screen bg-gray-900 pt-20 sm:pt-24 pb-6 px-4 text-white">
+        <title>TCG2i - Collection</title>
+        {loading ? (
+          <div className="flex items-center justify-center text-responsive">Loading...</div>
+        ) : user ? (
+          <div className="responsive-container">
+            <div className="w-full flex justify-center mb-4">
+              <button
+                onClick={() => {
+                  setViewMode(viewMode === "owned" ? "all" : "owned");
+                  handlePageChange(0);
+                }}
+                className="responsive-button bg-purple-600 hover:bg-purple-700 text-white 
+                  w-full sm:w-auto mx-auto"
+              >
+                {viewMode === "owned" ? "VOIR TOUTES LES CARTES" : "VOIR MES CARTES"}
+              </button>
+            </div>
 
-          <div className="responsive-grid">
-            {displayedCards.length > 0 ? (
-              displayedCards.map((card) => (
-                <CollectionCard 
-                  key={card.id}
-                  {...card}
-                  isOwned={card.quantity > 0}
-                />
-              ))
-            ) : (
-              <p className="text-gray-400 text-center col-span-full text-responsive">
-                Aucune carte.
+            <div className="responsive-grid">
+              {displayedCards.length > 0 ? (
+                displayedCards.map((card) => (
+                  <CollectionCard 
+                    key={card.id}
+                    {...card}
+                    isOwned={card.quantity > 0}
+                  />
+                ))
+              ) : (
+                <p className="text-gray-400 text-center col-span-full text-responsive">
+                  Aucune carte.
+                </p>
+              )}
+            </div>
+
+            {/* Pagination */}
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 mt-6">
+              <button
+                onClick={() => handlePageChange(0)}
+                disabled={page === 0}
+                className="responsive-button bg-blue-500 disabled:bg-gray-600"
+              >
+                {"<<"}
+              </button>
+              <button
+                onClick={() => handlePageChange(Math.max(page - 1, 0))}
+                disabled={page === 0}
+                className="responsive-button bg-blue-500 disabled:bg-gray-600"
+              >
+                {"<"}
+              </button>
+              <p className="text-gray-400">
+                Page {page + 1} sur {totalPages}
               </p>
-            )}
+              <button
+                onClick={() => handlePageChange(Math.min(page + 1, totalPages - 1))}
+                disabled={page + 1 >= totalPages}
+                className="responsive-button bg-blue-500 disabled:bg-gray-600"
+              >
+                {">"}
+              </button>
+              <button
+                onClick={() => handlePageChange(totalPages - 1)}
+                disabled={page + 1 >= totalPages}
+                className="responsive-button bg-blue-500 disabled:bg-gray-600"
+              >
+                {">>"}
+              </button>
+            </div>
           </div>
-
-          {/* Pagination */}
-          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 mt-6">
-            <button
-              onClick={() => handlePageChange(0)}
-              disabled={page === 0}
-              className="responsive-button bg-blue-500 disabled:bg-gray-600"
-            >
-              {"<<"}
-            </button>
-            <button
-              onClick={() => handlePageChange(Math.max(page - 1, 0))}
-              disabled={page === 0}
-              className="responsive-button bg-blue-500 disabled:bg-gray-600"
-            >
-              {"<"}
-            </button>
-            <p className="text-gray-400">
-              Page {page + 1} sur {totalPages}
+        ) : (
+          <div className="flex flex-col justify-center text-center">
+            <p className="text-gray-300 text-lg sm:text-xl mb-4">
+              Please log in to view your collection.
             </p>
-            <button
-              onClick={() => handlePageChange(Math.min(page + 1, totalPages - 1))}
-              disabled={page + 1 >= totalPages}
-              className="responsive-button bg-blue-500 disabled:bg-gray-600"
-            >
-              {">"}
-            </button>
-            <button
-              onClick={() => handlePageChange(totalPages - 1)}
-              disabled={page + 1 >= totalPages}
-              className="responsive-button bg-blue-500 disabled:bg-gray-600"
-            >
-              {">>"}
-            </button>
+            <Link href="/">
+              <button className="px-6 py-3 bg-blue-500 text-white font-semibold">
+                Log In
+              </button>
+            </Link>
           </div>
-        </div>
-      ) : (
-        <div className="flex flex-col justify-center text-center">
-          <p className="text-gray-300 text-lg sm:text-xl mb-4">
-            Please log in to view your collection.
-          </p>
-          <Link href="/">
-            <button className="px-6 py-3 bg-blue-500 text-white font-semibold">
-              Log In
-            </button>
-          </Link>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </RestrictedAccess>
   );
 }

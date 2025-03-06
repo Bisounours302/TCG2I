@@ -37,6 +37,7 @@ html, body {
   overflow-x: hidden;
   height: 100%;
   width: 100%;
+  user-select: none;
 }
 
 /* 🔍 Cacher la barre de défilement sans désactiver le scroll */
@@ -173,10 +174,52 @@ html, body {
 
 /* Responsive grid for memory game */
 .memory-grid {
-  @apply grid gap-2 sm:gap-3 md:gap-4
+  @apply grid gap-2 sm:gap-2 md:gap-3
   grid-cols-4
   w-full max-w-xs sm:max-w-md md:max-w-lg lg:max-w-xl
   mx-auto;
+}
+
+/* Optimized Memory Game Layout */
+.memory-cards-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  width: 100%;
+  max-width: min(92vw, 520px);
+  margin: 0 auto;
+  aspect-ratio: 0.95/1; /* Légèrement moins haut pour laisser de l'espace */
+}
+
+@media (min-width: 640px) {
+  .memory-cards-container {
+    gap: 10px;
+    max-width: min(85vw, 560px);
+    max-width: min(85vw, 550px);
+  }
+}
+
+@media (min-width: 768px) {
+  .memory-cards-container {
+    gap: 12px;
+    max-width: min(80vw, 600px);
+  }
+}
+
+.memory-card-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 3/4;
+  cursor: pointer;
+  border-radius: 8px;
+  overflow: hidden;
+  transform-origin: center;
+  transition: transform 0.2s ease-out;
+}
+
+.memory-card-wrapper:hover {
+  transform: scale(0.98);
 }
 
 /* Responsive buttons */

@@ -1,46 +1,37 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/firebaseConfig";
-import { collection, getDocs } from "firebase/firestore";
+import { adminDb } from "@/lib/firebaseAdmin";
 
 export async function GET() {
   try {
-    const cardsRef = collection(db, "cards");
-    const snapshot = await getDocs(cardsRef);
-
-    type Card = {
-      id: string;
-      rarity: string;
-      // add other properties if needed
-    };
-
-    const allCards: Card[] = snapshot.docs.map((doc) => ({
+    // Récupérer toutes les cartes de la collection 'cards'
+    const cardsSnapshot = await adminDb.collection('cards').get();
+    const allCards = cardsSnapshot.docs.map(doc => ({
       id: doc.id,
-      ...doc.data(),
-    } as Card));
+      ...doc.data()
+    }));
 
-    // Filter out secret and super-rare cards
-    const filteredCards = allCards.filter(card => card.rarity !== 'secret' && card.rarity !== 'super-rare');
+    // Mélanger les cartes et en prendre 8 aléatoirement
+    const shuffledCards = allCards.sort(() => Math.random() - 0.5);
+    const selectedCards = shuffledCards.slice(0, 8);
 
-    if (filteredCards.length < 8) {
-      return NextResponse.json({ error: "Pas assez de cartes disponibles." }, { status: 500 });
-    }
+    // Dupliquer les cartes pour créer les paires
+    const memoryCards = [...selectedCards, ...selectedCards].sort(() => Math.random() - 0.5);
 
-    // Mélange et sélectionne 8 cartes aléatoires (2 exemplaires de chaque)
-    const selectedCards = [...filteredCards.sort(() => Math.random() - 0.5).slice(0, 8)];
+    // Ajouter un identifiant unique pour chaque carte (même les paires)
+    const cardsWithUniqueIds = memoryCards.map((card, index) => ({
+      ...card,
+      uniqueId: `${card.id}-${index}`
+    }));
 
-    // Créer deux exemplaires de chaque carte avec des IDs uniques
-    const memoryCards = selectedCards.flatMap((card) => [
-      { ...card, uniqueId: `${card.id}-1` },
-      { ...card, uniqueId: `${card.id}-2` },
-    ]);
-
-    // Mélanger les cartes
-    const shuffledCards = memoryCards.sort(() => Math.random() - 0.5);
-
-    return NextResponse.json({ cards: shuffledCards });
+    return NextResponse.json({
+      cards: cardsWithUniqueIds
+    });
 
   } catch (error) {
     console.error("Erreur lors de la récupération des cartes :", error);
-    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Erreur lors de la récupération des cartes" },
+      { status: 500 }
+    );
   }
 }
